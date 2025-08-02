@@ -1,0 +1,99 @@
+<footer class="d-flex w-100 justify-content-center">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="site-footer-two-line text-center">
+          {% assign start_date = site.start_date | default: '2024-01-01' %} {%
+          assign start_time = start_date | date: '%s' %} {% assign current_time
+          = 'now' | date: '%s' %} {% assign seconds = current_time | minus:
+          start_time %} {% assign days = seconds | divided_by: 86400 %} {%
+          assign remaining_secs = seconds | modulo: 86400 %} {% assign hours =
+          remaining_secs | divided_by: 3600 %} {% assign remaining_secs =
+          remaining_secs | modulo: 3600 %} {% assign minutes = remaining_secs |
+          divided_by: 60 %} {% assign secs = remaining_secs | modulo: 60 %} {%
+          assign total_words = 0 %} {% for post in site.posts %} {% assign
+          post_words_count = post.content | number_of_words %} {% assign
+          total_words = total_words | plus: post_words_count %} {% endfor %}
+
+          <p>
+            © {{ 'now' | date: '%Y' }} {{ site.social.name | default: site.title
+            }}. 本站采用
+            <a href="https://jekyllrb.com/" target="_blank">Jekyll</a>
+            构建，主题为
+            <a
+              href="https://github.com/cotes2020/jekyll-theme-chirpy/"
+              target="_blank"
+              >Chirpy</a
+            >.
+          </p>
+
+          <p>
+            共
+            <strong class="text-danger">{{ site.posts | size }}</strong>
+            篇文章，总计
+            <strong class="text-danger"
+              >{{ total_words | times: 0.001 | round: 1 }}k</strong
+            >
+            字， 本站已稳定运行
+            <span class="odometer text-danger" id="runtime_days">0</span> 天
+            <span class="odometer text-danger" id="runtime_hours">0</span> 小时
+            <span class="odometer text-danger" id="runtime_minutes">0</span>
+            分钟
+            <span class="odometer text-danger" id="runtime_seconds">0</span> 秒
+          </p>
+
+          <script>
+            var siteStart = new Date(
+              "{{ site.start_date | default: '2024-01-01' }}T00:00:00Z"
+            );
+
+            function updateRuntime() {
+              var now = new Date();
+              var diff = Math.floor((now - siteStart) / 1000);
+
+              var days = Math.floor(diff / 86400);
+              diff %= 86400;
+              var hours = Math.floor(diff / 3600);
+              diff %= 3600;
+              var minutes = Math.floor(diff / 60);
+              var seconds = diff % 60;
+
+              document.getElementById("runtime_days").innerHTML = days;
+              document.getElementById("runtime_hours").innerHTML = hours;
+              document.getElementById("runtime_minutes").innerHTML = minutes;
+              document.getElementById("runtime_seconds").innerHTML = seconds;
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+              updateRuntime();
+              setInterval(updateRuntime, 1000);
+            });
+          </script>
+
+          <p>
+            访问人数
+            <strong class="text-danger"
+              ><span id="busuanzi_value_site_uv">加载中...</span></strong
+            >
+            ， 总访问量
+            <strong class="text-danger"
+              ><span id="busuanzi_value_site_pv">加载中...</span></strong
+            >
+          </p>
+          <script
+            defer
+            src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"
+          ></script>
+
+          <!-- Odometer 动效样式 -->
+          <link
+            rel="stylesheet"
+            href="/assets/css/odometer-theme-default.css"
+          />
+          <!-- Odometer 脚本 -->
+          <script src="/assets/js/odometer.min.js"></script>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

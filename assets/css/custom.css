@@ -1,0 +1,27 @@
+/* 双行页脚样式 */
+.site-footer-two-line {
+  padding: 2rem 0;
+  margin-top: 2rem;
+  border-top: 1px solid var(--main-border-color);
+  font-size: 0.85rem;
+  color: var(--text-muted-color);
+  text-align: center;
+}
+
+.text-danger {
+  color: #e63946; /* 更温和的红 */
+  font-weight: bold; /* 虽然 <strong> 已加粗，但保证兼容性 */
+}
+.site-footer-two-line p {
+  margin-bottom: 0.4rem;
+}
+
+.site-footer-two-line a {
+  color: var(--text-muted-color);
+  text-decoration: none;
+}
+
+.site-footer-two-line a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
