@@ -4,26 +4,39 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-12">
-        <!-- 文章和字数渲染 -->
+
+        <p>
+          © {{ 'now' | date: '%Y' }} {{ site.social.name | default: site.title}}. 本站采用<a href="https://jekyllrb.com/" target="_blank">Jekyll</a>构建, 主题为<a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank">Chirpy</a>.
+        </p>
+
         {% assign total_words = 0 %}
+        {% assign total_read_time = 0 %}
+        {% assign wpm = 180 %}
+        {% assign min_time = 1 %}
+
         {% for post in site.posts %}
-          {% assign post_words_count = post.content | number_of_words %}
-          {% assign total_words = total_words | plus: post_words_count %}
+          {% assign words = post.content | strip_html | number_of_words: 'auto' %}
+          {% assign total_words = total_words | plus: words %}
+
+          {% assign read_time = words | divided_by: wpm %}
+          {% unless read_time > 0 %}
+            {% assign read_time = min_time %}
+          {% endunless %}
+          {% assign total_read_time = total_read_time | plus: read_time %}
         {% endfor %}
 
         <p>
-          © {{ 'now' | date: '%Y' }} {{ site.social.name | default: site.title}}. 本站采用<a href="https://jekyllrb.com/" target="_blank">Jekyll</a>构建,主题为<a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank">Chirpy</a>.
-        </p>
-
-        <p>
-          共<strong class="text-danger">{{ site.posts | size }}</strong>篇文章,总计<strong class="text-danger">{{ total_words | times: 0.001 | round: 1 }}k</strong>字, 本站已稳定运行
+          共<strong class="text-danger">{{ site.posts | size }}</strong>篇文章,
+          总计<strong class="text-danger">{{ total_words | divided_by: 1000.0 | round: 1 }}k</strong>字,
+          总阅读时长约<strong class="text-danger">{{ total_read_time | ceil }}</strong> 分钟,
+          本站已稳定运行
           <span class="odometer text-danger" id="runtime_days">0</span> 天
           <span class="odometer text-danger" id="runtime_hours">0</span> 小时
           <span class="odometer text-danger" id="runtime_minutes">0</span> 分钟
           <span class="odometer text-danger" id="runtime_seconds">0</span> 秒
         </p>
 
-        <script src="{{ '/assets/js/runtime.js' | relative_url }}"></script>
+        <script defer src="{{ '/assets/js/runtime.js' | relative_url }}"></script>
 
         <p>
           访问人数
