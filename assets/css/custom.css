@@ -9,9 +9,10 @@
 }
 
 .text-danger {
-  color: #e63946; /* 更温和的红 */
+  color: #e63946 !important; /* 你的红色，确保覆盖默认 */
   font-weight: bold; /* 虽然 <strong> 已加粗，但保证兼容性 */
 }
+
 .site-footer-two-line p {
   margin-bottom: 0.4rem;
 }

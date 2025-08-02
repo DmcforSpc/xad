@@ -35,11 +35,11 @@
               >{{ total_words | times: 0.001 | round: 1 }}k</strong
             >
             字， 本站已稳定运行
-            <span class="odometer text-danger" id="runtime_days">0</span> 天
-            <span class="odometer text-danger" id="runtime_hours">0</span> 小时
-            <span class="odometer text-danger" id="runtime_minutes">0</span>
+            <span class="odometer" id="runtime_days">0</span> 天
+            <span class="odometer" id="runtime_hours">0</span> 小时
+            <span class="odometer" id="runtime_minutes">0</span>
             分钟
-            <span class="odometer text-danger" id="runtime_seconds">0</span> 秒
+            <span class="odometer" id="runtime_seconds">0</span> 秒
           </p>
 
           <script>
@@ -72,15 +72,17 @@
 
           <p>
             访问人数
-            <strong class="text-danger"
-              ><span id="busuanzi_value_site_uv">加载中...</span></strong
-            >
-            ， 总访问量
-            <strong class="text-danger"
-              ><span id="busuanzi_value_site_pv">加载中...</span></strong
-            >
+            <span class="text-danger">
+              <span id="busuanzi_value_site_uv">加载中...</span> </span
+            >， 总访问量
+            <span class="text-danger">
+              <span id="busuanzi_value_site_pv">加载中...</span>
+            </span>
           </p>
-          <script defer src="/assets/js/busuanzi.pure.mini.js"></script>
+          <script
+            defer
+            src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"
+          ></script>
 
           <!-- Odometer 动效样式 -->
           <link
