@@ -1,12 +1,3 @@
-/* 强制修改 Odometer 内部数字颜色 */
-.odometer,
-.odometer .odometer-digit,
-.odometer .odometer-value,
-.odometer .odometer-ribbon-inner {
-  color: #e63946 !important; /* 你的红色，确保覆盖默认 */
-  font-weight: bold;
-}
-
 .odometer.odometer-auto-theme,
 .odometer.odometer-theme-default {
   display: inline-block;
