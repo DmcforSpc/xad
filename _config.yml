@@ -188,9 +188,6 @@ defaults:
       # DO NOT modify the following parameter unless you are confident enough
       # to update the code of all other post links in this project.
 
-      # --- 在这里添加默认作者 ---
-      author: DmcforSpc # 你的名字或笔名
-      # --------------------------
       permalink: /posts/:title/
   - scope:
       path: _drafts
