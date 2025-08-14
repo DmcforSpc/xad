@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const siteStart = new Date('2025-08-01T00:00:00Z'); // 修改为你实际的 start_date
+  // 本地时区时间
+  const siteStart = new Date('2025-08-01T00:00:00+08:00');
 
   function updateRuntime() {
     const now = new Date();
@@ -12,10 +13,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const minutes = Math.floor(diff / 60);
     const seconds = diff % 60;
 
-    document.getElementById('runtime_days').textContent = days;
-    document.getElementById('runtime_hours').textContent = hours;
-    document.getElementById('runtime_minutes').textContent = minutes;
-    document.getElementById('runtime_seconds').textContent = seconds;
+    document.getElementById('runtime_days').innerHTML = days;
+    document.getElementById('runtime_hours').innerHTML = hours;
+    document.getElementById('runtime_minutes').innerHTML = minutes;
+    document.getElementById('runtime_seconds').innerHTML = seconds;
   }
 
   updateRuntime();
