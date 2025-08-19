@@ -86,5 +86,11 @@ layout: compress
     <script src="{{ '/assets/js/custom.js' | relative_url }}"></script>
     <!-- 欢迎-再见引用 end -->
 
+    <!-- 背景动画效果 -->
+    {% if site.backgroud_animation %}
+      {% include animated-background.html %}
+    {% endif %}
+    <!-- 背景动画效果 end -->
+
   </body>
 </html>
