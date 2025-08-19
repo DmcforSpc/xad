@@ -37,3 +37,12 @@
   gap: 6px;
 }
 /* 访客统计的总容器 end*/
+
+/* 侧边栏背景图片添加 */
+#sidebar {
+  background-image: url(../img/favicons/background3.jpg); /* <- change background image */
+  background-size: cover; /* <- customize the image size */
+  background-repeat: no-repeat; /* <- no-repeat */
+  background-position: top; /* <- image position */
+}
+/* 侧边栏背景图片添加 end */
