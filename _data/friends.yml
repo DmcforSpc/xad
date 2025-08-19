@@ -1,0 +1,30 @@
+# 友链数据
+# 格式:
+# - name: 网站名称
+#   url: 网站链接
+#   avatar: 头像图片链接
+#   desc: 网站描述
+#   group: 分组名称 (可选)
+
+- name: "L1nq"
+  url: "https://oct1sec.top/"
+  avatar: "https://oct1sec.top/images/octopus3.png"
+  desc: "技术大佬"
+  # group: "技术大佬"
+
+- name: "which"
+  url: "http://blog.which778.cn/"
+  avatar: "https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/http://blog.which778.cn/wp-content/uploads/2025/04/1744346830-头像.png"
+  desc: "Src 专家"
+  # group: "常用网站"
+# - name: "GitHub"
+#   url: "https://github.com"
+#   avatar: "https://github.githubassets.com/favicons/favicon.png"
+#   desc: "Where the world builds software."
+#   # group: "常用网站"
+
+# # 如果没有 group 字段，会显示在默认分组中
+# - name: "Jekyll"
+#   url: "https://jekyllrb.com/"
+#   avatar: "https://jekyllrb.com/img/logo-2x.png"
+#   desc: "Transform your plain text into static websites and blogs."

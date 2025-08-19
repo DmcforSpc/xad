@@ -9,3 +9,31 @@
 ';
 
 /* append your custom style below */
+
+/* 访客统计的总容器 */
+#visitor-stats {
+  /* 1. 使用 Flexbox 布局 */
+  display: flex;
+
+  /* 2. (核心) 水平居中所有项目 */
+  justify-content: center;
+
+  /* 垂直方向也居中 (好习惯) */
+  align-items: center;
+
+  /* 3. (核心) 在两个项目之间创建 16px 的间隔，可以按喜好调整这个值 */
+  gap: 16px;
+
+  /* 可选：给整个容器上下增加一点边距，让它呼吸感更强 */
+  padding: 10px 0;
+}
+
+/* 单个统计项目 (图标 + 数字) */
+.visitor-item {
+  display: inline-flex;
+  align-items: center;
+
+  /* 4. (核心) 在图标和数字之间创建 6px 的间隔，可以按喜好调整 */
+  gap: 6px;
+}
+/* 访客统计的总容器 end*/
