@@ -2,14 +2,16 @@
 ---
 
 /* prettier-ignore */
-@use 'sass:math'; /* 背景动画实现添加头 */
 @use 'main
-{%- if jekyll.environment == ' production ' -%}
+{%- if jekyll.environment == 'production' -%}
   .bundle
 {%- endif -%}
 ';
 
 /* append your custom style below */
+
+/* 背景动画需要 Sass 的 math 模块 */
+@use 'sass:math';
 
 /* 访客统计的总容器 */
 #visitor-stats {
