@@ -8,7 +8,7 @@
 
 - name: "L1nq"
   url: "https://oct1sec.top/"
-  avatar: "https://oct1sec.top/images/octopus3.png"
+  avatar: "https://img2024.cnblogs.com/blog/3691150/202508/3691150-20250819215600172-798507334.jpg"
   desc: "技术大佬"
   # group: "技术大佬"
 
@@ -17,12 +17,12 @@
   avatar: "https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/http://blog.which778.cn/wp-content/uploads/2025/04/1744346830-头像.png"
   desc: "Src 专家"
   # group: "常用网站"
-# - name: "GitHub"
-#   url: "https://github.com"
-#   avatar: "https://github.githubassets.com/favicons/favicon.png"
-#   desc: "Where the world builds software."
-#   # group: "常用网站"
 
+- name: "frank1q22"
+  url: "https://xz.aliyun.com/users/163736/news"
+  avatar: "https://i-avatar.csdnimg.cn/51fd68dba22b44199c201446d58713d4_2301_76968724.jpg!1"
+  desc: "Web 高手,渗透大牛"
+  # group: "常用网站"
 # # 如果没有 group 字段，会显示在默认分组中
 # - name: "Jekyll"
 #   url: "https://jekyllrb.com/"
