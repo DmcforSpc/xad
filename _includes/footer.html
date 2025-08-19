@@ -1,44 +1,55 @@
 <!-- The Footer -->
 
-<footer class="d-flex w-100 justify-content-center">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12">
+<footer
+  aria-label="Site Info"
+  class="
+    d-flex flex-column justify-content-center text-muted
+    flex-lg-row justify-content-lg-between align-items-lg-center pb-lg-3
+  "
+>
+  <p>
+    {{- '©' }}
+    <time>{{ 'now' | date: '%Y' }}</time>
 
-        <p>
-          © {{ 'now' | date: '%Y' }} {{ site.social.name | default: site.title}}. 本站采用<a href="https://jekyllrb.com/" target="_blank">Jekyll</a>构建, 主题为<a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank">Chirpy</a>.
-        </p>
+    {% if site.social.links %}
+      <a href="{{ site.social.links[0] }}">{{ site.social.name }}</a>.
+    {% else %}
+      <em class="fst-normal">{{ site.social.name }}</em>.
+    {% endif %}
 
-        <p>
-          共<strong class="text-danger">{{ site.posts | size }}</strong>篇文章,
-          本站已稳定运行
-          <span class="odometer text-danger" id="runtime_days">0</span> 天
-          <span class="odometer text-danger" id="runtime_hours">0</span> 小时
-          <span class="odometer text-danger" id="runtime_minutes">0</span> 分钟
-          <span class="odometer text-danger" id="runtime_seconds">0</span> 秒
-        </p>
+    {% if site.data.locales[include.lang].copyright.brief %}
+      <span
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="{{ site.data.locales[include.lang].copyright.verbose }}"
+      >
+        {{- site.data.locales[include.lang].copyright.brief -}}
+      </span>
+    {% endif %}
+  </p>
+  
+  <!-- 不蒜子 - 极简网页计数器 -->
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <i class="fa fa-user" aria-hidden="true"></i> <span id="busuanzi_value_site_uv"></span> |
+  <i class="fa fa-eye" aria-hidden="true"></i> <span id="busuanzi_value_site_pv"></span>
+  <!-- end -->  
 
-        <script defer src="{{ '/assets/js/runtime.js' | relative_url }}"></script>
+  <p>
+    {%- capture _platform -%}
+      <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a>
+    {%- endcapture -%}
 
-        <p>
-          访问人数
-          <span class="text-danger">
-            <span id="busuanzi_value_site_uv">加载中...</span>
-          </span>
-          , 总访问量
-          <span class="text-danger">
-            <span id="busuanzi_value_site_pv">加载中...</span>
-          </span>
-        </p>
-        
-        <script defer src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    {%- capture _theme -%}
+      <a
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="v{{ theme.version }}"
+        href="https://github.com/cotes2020/jekyll-theme-chirpy"
+        target="_blank"
+        rel="noopener"
+      >Chirpy</a>
+    {%- endcapture -%}
 
-        <!-- Odometer 样式 -->
-        <link rel="stylesheet" href="{{ '/assets/css/odometer-theme-default.css' | relative_url }}" />
-        <!-- Odometer 动效脚本 -->
-        <script src="{{ '/assets/js/odometer.min.js' | relative_url }}"></script>
-
-      </div>
-    </div>
-  </div>
+    {{ site.data.locales[include.lang].meta | replace: ':PLATFORM', _platform | replace: ':THEME', _theme }}
+  </p>
 </footer>
