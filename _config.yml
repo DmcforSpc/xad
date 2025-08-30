@@ -36,6 +36,9 @@ url: "https://dmcforspc.github.io"
 # The base URL of your site
 baseurl: "/xad"
 
+# 对博客设置增量构建（即只重新建构发生更改的文件，而不是每次重新构建整个站点）
+incremental: true
+
 github:
   username: DmcforSpc # change to your GitHub username
 
