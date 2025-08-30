@@ -14,8 +14,8 @@
 
 - name: "which"
   url: "http://blog.which778.cn/"
-  avatar: "http://blog.which778.cn/wp-content/uploads/2025/04/1744346830-头像.png"
-  desc: "Src 专家"
+  avatar: "https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/http://blog.which778.cn/wp-content/uploads/2025/04/1744346830-头像.png"
+  desc: "Src 高手"
   # group: "常用网站"
 
 - name: "frank1q22"
