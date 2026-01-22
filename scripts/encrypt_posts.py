@@ -116,6 +116,7 @@ def main():
                     scripts = re.findall(r'<script.*?>.*?</script>', pagecrypt_content, flags=re.DOTALL)
                     pagecrypt_scripts = "\n".join(scripts)
                     
+                    
                     # 2. 密文 payload（通常在 <pre id="encrypted-payload"> 或类似结构，PageCrypt v5 使用 <pre hidden>）
                     payload_match = re.search(r'<pre[^>]*>.*?</pre>', pagecrypt_content, flags=re.DOTALL)
                     pagecrypt_payload = payload_match.group(0) if payload_match else ""
