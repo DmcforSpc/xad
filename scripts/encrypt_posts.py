@@ -115,6 +115,10 @@ def main():
                     # 1. <script> 标签（包含解密逻辑）
                     scripts = re.findall(r'<script.*?>.*?</script>', pagecrypt_content, flags=re.DOTALL)
                     pagecrypt_scripts = "\n".join(scripts)
+                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                        '["input","header","#msg","form","#load"]',
+                        '["#pwd","#pagecrypt-header","#msg","#pagecrypt-form","#load"]',
+                    )
                     
                     # 2. 密文 payload（通常在 <pre id="encrypted-payload"> 或类似结构，PageCrypt v5 使用 <pre hidden>）
                     payload_match = re.search(r'<pre[^>]*>.*?</pre>', pagecrypt_content, flags=re.DOTALL)
@@ -144,14 +148,14 @@ def main():
                     decrypt_ui = """
                     <div class="decrypt-overlay">
                         <div class="decrypt-card">
-                            <header>
+                            <header id="pagecrypt-header">
                                 <span class="lock-icon">🔒</span>
                                 <p id="msg">This content is password protected.</p>
                             </header>
                             <div id="load">
                                 <p>Loading...</p>
                             </div>
-                            <form class="hidden">
+                            <form id="pagecrypt-form" class="hidden">
                                 <input type="password" id="pwd" name="pwd" aria-label="Password" autofocus placeholder="Password" />
                                 <button type="submit">Unlock</button>
                             </form>
