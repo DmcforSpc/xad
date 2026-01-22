@@ -26,7 +26,8 @@ layout: page
               src="{{ friend.avatar }}" 
               alt="{{ friend.name }}" 
               class="friend-card-avatar"
-              onerror="this.src='https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/avatar.jpg'; this.onerror=null;"
+              data-fallback="{{ '/assets/img/favicons/m.png' | relative_url }}"
+              onerror="this.src=this.dataset.fallback; this.onerror=null;"
             >
           </div>
           <div class="friend-card-info">
@@ -39,85 +40,3 @@ layout: page
   </div>
 </div>
 
-<style>
-/* --- 主容器和网格布局 --- */
-.friends-container {
-  display: grid;
-  /* --- 修改点 1: 这里实现了“一排三个” --- */
-  grid-template-columns: repeat(3, 1fr); /* 在大屏幕上固定为三列 */
-  gap: 1.5rem; /* 卡片之间的间距 */
-  margin-top: 2rem;
-}
-
-/* --- 响应式设计：在中等屏幕（如平板）上变为两列 --- */
-@media (max-width: 992px) {
-  .friends-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* --- 响应式设计：在小屏幕（如手机）上变为一列 --- */
-@media (max-width: 768px) {
-  .friends-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-
-/* --- 单个卡片的样式 --- */
-.friend-card-item {
-  background-color: var(--card-bg); /* 关键！自动适应主题背景色 */
-  border-radius: 12px; /* 圆角 */
-  border: 1px solid var(--main-border-color); /* 关键！自动适应主题边框色 */
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.friend-card-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-
-.friend-card-link {
-  display: block;
-  text-decoration: none;
-  color: var(--text-color); /* 关键！自动适应主题文字颜色 */
-}
-
-/* --- 卡片顶部图片区域 --- */
-.friend-card-img-wrapper {
-  width: 100%;
-  /* --- 修改点 2: 这里缩小了图片的高度 --- */
-  height: 120px; /* 图片区域高度从 160px 减小到 120px */
-  overflow: hidden;
-}
-
-.friend-card-avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* 图片不变形，填满容器 */
-  transition: transform 0.3s ease;
-}
-
-.friend-card-item:hover .friend-card-avatar {
-  transform: scale(1.05); /* 鼠标悬浮时图片轻微放大 */
-}
-
-/* --- 卡片下方信息区域 --- */
-.friend-card-info {
-  padding: 1.25rem;
-  text-align: center; /* 文字居中 */
-}
-
-.friend-card-name {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.friend-card-desc {
-  font-size: 0.9rem;
-  color: var(--text-muted-color); /* 关键！自动适应主题的次要文字颜色 */
-  line-height: 1.5;
-}
-</style>
