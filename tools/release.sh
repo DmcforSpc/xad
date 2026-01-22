@@ -20,16 +20,18 @@ JS_DIST="assets/js/dist"
 
 FILES=(
   "$GEM_SPEC"
-  "$NODE_SPEC"
   "$CHANGELOG"
   "$CONFIG"
 )
 
 TOOLS=(
   "git"
-  "npm"
   "gem"
 )
+
+if [[ -f "$NODE_SPEC" ]]; then
+  TOOLS+=("npm")
+fi
 
 help() {
   echo -e "A tool to release new version Chirpy gem.\nThis tool will:"
@@ -86,15 +88,19 @@ init() {
   _check_cli
   _check_git
   _check_src
-  echo -e "> npm install\n"
-  npm i
+  if [[ -f "$NODE_SPEC" ]]; then
+    echo -e "> npm install\n"
+    npm i
+  fi
 }
 
 ## Bump new version to gem-spec file
 _bump_version() {
-  _version="$(grep '"version":' "$NODE_SPEC" | sed 's/.*: "//;s/".*//')"
-  sed -i "s/[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+/$_version/" "$GEM_SPEC"
-  echo "> Bump gem version to $_version"
+  if [[ -f "$NODE_SPEC" ]]; then
+    _version="$(grep '"version":' "$NODE_SPEC" | sed 's/.*: "//;s/".*//')"
+    sed -i "s/[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+/$_version/" "$GEM_SPEC"
+    echo "> Bump gem version to $_version"
+  fi
 }
 
 _improve_changelog() {
@@ -115,9 +121,11 @@ build_gem() {
   sed -i -E "s/(^timezone:).*/\1/;s/(^cdn:).*/\1/;s/(^avatar:).*/\1/" $CONFIG
   rm -f ./*.gem
 
-  npm run build
-  # add CSS/JS distribution files to gem package
-  git add "$CSS_DIST" "$JS_DIST" -f
+  if [[ -f "$NODE_SPEC" ]]; then
+    npm run build
+    # add CSS/JS distribution files to gem package
+    git add "$CSS_DIST" "$JS_DIST" -f
+  fi
 
   echo -e "\n> gem build $GEM_SPEC\n"
   gem build "$GEM_SPEC"

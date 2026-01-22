@@ -6,23 +6,28 @@
 #   desc: 网站描述
 #   group: 分组名称 (可选)
 
+- name: "Alexander"
+  url: "https://www.cnblogs.com/alexander17/"
+  avatar: "https://images.cnblogs.com/cnblogs_com/blogs/835289/galleries/2431993/t_251213132555_%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2025-12-13_212534_485.jpg"
+  desc: "全栈神"
+
+- name: "which"
+  url: "http://blog.which778.cn/"
+  avatar: "https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/http://blog.which778.cn/wp-content/uploads/2025/04/1744346830-头像.png"
+  desc: "Src 高手"
+
+- name: "frank1q22"
+  url: "https://xz.aliyun.com/users/163736/news"
+  avatar: "https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/avatar.jpg"
+  desc: "Web 高手 渗透大牛"
+  # group: "常用网站"  分组
+
 - name: "L1nq"
   url: "https://oct1sec.top/"
   avatar: "https://oct1sec.top/images/1.jpg"
   desc: "技术大佬"
   # group: "技术大佬"
 
-- name: "which"
-  url: "http://blog.which778.cn/"
-  avatar: "https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/http://blog.which778.cn/wp-content/uploads/2025/04/1744346830-头像.png"
-  desc: "Src 高手"
-  # group: "常用网站"
-
-- name: "frank1q22"
-  url: "https://xz.aliyun.com/users/163736/news"
-  avatar: "https://youke1.picui.cn/s1/2025/08/30/68b3008800046.jpg"
-  desc: "Web 高手 渗透大牛"
-  # group: "常用网站"
 # # 如果没有 group 字段，会显示在默认分组中
 # - name: "Jekyll"
 #   url: "https://jekyllrb.com/"

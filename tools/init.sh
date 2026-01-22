@@ -5,7 +5,11 @@
 set -eu
 
 # CLI Dependencies
-CLI=("git" "npm")
+CLI=("git")
+
+if [[ -f package.json ]]; then
+  CLI+=("npm")
+fi
 
 ACTIONS_WORKFLOW=pages-deploy.yml
 
@@ -89,7 +93,9 @@ init_files() {
   rm -rf tools/init.sh tools/release.sh _posts/*
 
   # build assets
-  npm i && npm run build
+  if [[ -f package.json ]]; then
+    npm i && npm run build
+  fi
 
   # track the CSS/JS output
   _sedi "/^_sass\/vendors/d" .gitignore
