@@ -30,6 +30,8 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
+    env:
+      POST_PASSWORDS: ${{ secrets.POST_PASSWORDS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,9 +52,7 @@ jobs:
         env:
           JEKYLL_ENV: production
       - name: Encrypt protected posts
-        if: ${{ secrets.POST_PASSWORDS != '' }}
-        env:
-          POST_PASSWORDS: ${{ secrets.POST_PASSWORDS }}
+        if: ${{ env.POST_PASSWORDS != '' }}
         run: |
           python scripts/encrypt_posts.py
       - name: Upload artifact
