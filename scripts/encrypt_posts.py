@@ -71,7 +71,12 @@ def main():
         password = str(password)
         if not os.path.exists(output_path):
             continue
-        subprocess.run(["npx", "pagecrypt", "--password", password, output_path], check=True)
+        temp_output = f"{output_path}.enc"
+        subprocess.run(
+            ["npx", "-y", "pagecrypt@5.0.0", output_path, temp_output, password],
+            check=True,
+        )
+        os.replace(temp_output, output_path)
     return 0
 
 
