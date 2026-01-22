@@ -68,9 +68,10 @@ def main():
         password = mapping.get(lock_id) or mapping.get(output_path)
         if not password:
             continue
+        password = str(password)
         if not os.path.exists(output_path):
             continue
-        subprocess.run(["npx", "pagecrypt", output_path, password], check=True)
+        subprocess.run(["npx", "pagecrypt", "--password", password, output_path], check=True)
     return 0
 
 
