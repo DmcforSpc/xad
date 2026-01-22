@@ -115,10 +115,6 @@ def main():
                     # 1. <script> 标签（包含解密逻辑）
                     scripts = re.findall(r'<script.*?>.*?</script>', pagecrypt_content, flags=re.DOTALL)
                     pagecrypt_scripts = "\n".join(scripts)
-                    pagecrypt_scripts = pagecrypt_scripts.replace(
-                        '["input","header","#msg","form","#load"]',
-                        '["#pwd","#pagecrypt-header","#msg","#pagecrypt-form","#load"]',
-                    )
                     
                     # 2. 密文 payload（通常在 <pre id="encrypted-payload"> 或类似结构，PageCrypt v5 使用 <pre hidden>）
                     payload_match = re.search(r'<pre[^>]*>.*?</pre>', pagecrypt_content, flags=re.DOTALL)
@@ -148,15 +144,15 @@ def main():
                     decrypt_ui = """
                     <div class="decrypt-overlay">
                         <div class="decrypt-card">
-                            <header id="pagecrypt-header">
+                            <header>
                                 <span class="lock-icon">🔒</span>
                                 <p id="msg">This content is password protected.</p>
                             </header>
                             <div id="load">
                                 <p>Loading...</p>
                             </div>
-                            <form id="pagecrypt-form" class="hidden">
-                                <input type="password" id="pwd" name="pwd" aria-label="Password" autofocus placeholder="Password" />
+                            <form class="hidden">
+                                <input type="password" name="pwd" aria-label="Password" autofocus placeholder="Password" />
                                 <button type="submit">Unlock</button>
                             </form>
                         </div>
@@ -173,9 +169,9 @@ def main():
                             user-select: none;
                         }
                         
-                        /* 锁屏悬浮层 - 绝对定位在 main 区域内 */
+                        /* 锁屏悬浮层 - 覆盖全屏 */
                         .decrypt-overlay { 
-                            position: absolute;
+                            position: fixed;
                             top: 0;
                             left: 0;
                             width: 100%;
@@ -184,12 +180,7 @@ def main():
                             display: flex; 
                             align-items: center; 
                             justify-content: center; 
-                        }
-                        
-                        /* 确保 main 区域相对定位 */
-                        main {
-                            position: relative !important;
-                            min-height: 600px; /* 保证有足够高度显示锁 */
+                            background-color: rgba(0, 0, 0, 0.4);
                         }
                         
                         .decrypt-card { 
@@ -215,8 +206,8 @@ def main():
                     </style>
                     """
                     
-                    # 组装新的 main 内容
-                    new_main_inner = f"{fake_article}\n{decrypt_ui}\n{custom_style}\n{pagecrypt_payload}"
+                    # 组装新的 main 内容（仅替换正文）
+                    new_main_inner = f"{fake_article}\n{custom_style}\n{pagecrypt_payload}"
                     
                     # 替换原 HTML 中的 main 内容
                     # 使用字符串切片保留 main 标签本身（包含 class 等属性）
@@ -226,6 +217,9 @@ def main():
                         original_html[main_end_match.start():]
                     )
                     
+                    # 在 body 开头插入解锁 UI，保证选择器能找到正确的元素
+                    final_html = final_html.replace("<body>", f"<body>\n{decrypt_ui}")
+
                     # 将 pagecrypt 的脚本注入到 body 结束标签前
                     final_html = final_html.replace("</body>", f"{pagecrypt_scripts}\n</body>")
                     
