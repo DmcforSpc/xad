@@ -115,6 +115,10 @@ def main():
                     # 1. <script> 标签（包含解密逻辑）
                     scripts = re.findall(r'<script.*?>.*?</script>', pagecrypt_content, flags=re.DOTALL)
                     pagecrypt_scripts = "\n".join(scripts)
+                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                        '["input","header","#msg","form","#load"]',
+                        '["#pagecrypt-input","#pagecrypt-header","#pagecrypt-msg","#pagecrypt-form","#pagecrypt-load"]',
+                    )
                     
                     
                     # 2. 密文 payload（通常在 <pre id="encrypted-payload"> 或类似结构，PageCrypt v5 使用 <pre hidden>）
@@ -145,15 +149,15 @@ def main():
                     decrypt_ui = """
                     <div class="decrypt-overlay">
                         <div class="decrypt-card">
-                            <header>
+                            <header id="pagecrypt-header">
                                 <span class="lock-icon">🔒</span>
-                                <p id="msg">This content is password protected.</p>
+                                <p id="pagecrypt-msg">This content is password protected.</p>
                             </header>
-                            <div id="load">
+                            <div id="pagecrypt-load">
                                 <p>Loading...</p>
                             </div>
-                            <form class="hidden">
-                                <input type="password" name="pwd" aria-label="Password" autofocus placeholder="Password" />
+                            <form id="pagecrypt-form" class="hidden">
+                                <input type="password" id="pagecrypt-input" name="pwd" aria-label="Password" autofocus placeholder="Password" />
                                 <button type="submit">Unlock</button>
                             </form>
                         </div>
@@ -197,13 +201,13 @@ def main():
                         }
                         
                         .lock-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
-                        #msg { font-size: 1.1rem; margin-bottom: 1.5rem; }
+                        #pagecrypt-msg { font-size: 1.1rem; margin-bottom: 1.5rem; }
                         input[type="password"] { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid var(--border-color); background-color: var(--bg-color); color: #fff; border-radius: 6px; box-sizing: border-box; }
                         input[type="password"]:focus { outline: none; border-color: var(--primary-color); }
                         button { background-color: var(--primary-color); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600; }
                         button:hover { background-color: var(--primary-hover); }
                         .hidden { display: none; }
-                        #load { margin: 1rem 0; }
+                        #pagecrypt-load { margin: 1rem 0; }
                     </style>
                     """
                     
