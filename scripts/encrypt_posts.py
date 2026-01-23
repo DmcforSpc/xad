@@ -112,50 +112,65 @@ def main():
                     # PageCrypt v5 的结构比较复杂，它可能把密文放在 <pre> 里，把逻辑放在 <script> 里
                     
                     # 提取 pagecrypt 的核心部分
+                    # 提取 pagecrypt 的核心部分
                     # 1. <script> 标签（包含解密逻辑）
-                    scripts = re.findall(r'<script.*?>.*?</script>', pagecrypt_content, flags=re.DOTALL)
-                    pagecrypt_scripts = "\n".join(scripts)
+                    # 改为只提取脚本内容，并移除 type="module"，改为立即执行函数(IIFE)以避免作用域污染和模块加载延迟问题
+                    script_contents = re.findall(r'<script[^>]*>(.*?)</script>', pagecrypt_content, flags=re.DOTALL)
+                    raw_script_content = "\n".join(script_contents)
                     
                     # 验证并替换选择器
                     target_selectors = '["input","header","#msg","form","#load"]'
-                    if target_selectors in pagecrypt_scripts:
-                        pagecrypt_scripts = pagecrypt_scripts.replace(
+                    if target_selectors in raw_script_content:
+                        raw_script_content = raw_script_content.replace(
                             target_selectors,
                             '["#pagecrypt-input","#pagecrypt-header","#pagecrypt-msg","#pagecrypt-form","#pagecrypt-load"]',
                         )
                         print(f"Successfully patched selectors in {output_path}")
                     else:
                         print(f"WARNING: Could not find selectors {target_selectors} in {output_path}. JS patch may fail.")
-                        # 尝试一种更宽松的替换（以防 minification 差异）
-                        # PageCrypt 5.0.0 的源码中确实是这个顺序，但如果空格不同...
-                        # 我们可以尝试用正则替换
-                        pagecrypt_scripts = re.sub(
+                        raw_script_content = re.sub(
                             r'\["input","header","#msg","form","#load"\]',
                             '["#pagecrypt-input","#pagecrypt-header","#pagecrypt-msg","#pagecrypt-form","#pagecrypt-load"]',
-                            pagecrypt_scripts
+                            raw_script_content
                         )
 
                     # 注入初始化逻辑 patch
-                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                    raw_script_content = raw_script_content.replace(
                         'document.addEventListener("DOMContentLoaded",(async()=>{',
                         'const __pc_init = async()=>{',
                     )
-                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                    raw_script_content = raw_script_content.replace(
                         '}));const m=',
                         '};if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",__pc_init);}else{__pc_init();}const m=',
                     )
                     # 增加调试日志
-                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                    raw_script_content = raw_script_content.replace(
                         'let l,u,w;',
                         'console.log("[pagecrypt] elements", {input:a, header:s, msg:i, form:c, load:d, ready:document.readyState}); if(!a||!s||!i||!c||!d){ console.error("Missing elements!"); document.getElementById("pagecrypt-load").innerText = "Error: Missing DOM elements"; } let l,u,w;',
                     )
-                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                    raw_script_content = raw_script_content.replace(
                         'const e=o("pre").innerText;',
                         'const e=o("pre").innerText;console.log("[pagecrypt] payload length", e?e.length:0);',
                     )
-                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                    raw_script_content = raw_script_content.replace(
                         'catch(e){f(d),p(c),s.classList.replace("hidden","flex"),sessionStorage.k?sessionStorage.removeItem("k"):y("Wrong password."),a.value="",a.focus()}}',
                         'catch(e){console.error("[pagecrypt] decrypt error",e); document.getElementById("pagecrypt-load").innerText = "Error: " + e.message; f(d),p(c),s.classList.replace("hidden","flex"),sessionStorage.k?sessionStorage.removeItem("k"):y("Wrong password."),a.value="",a.focus()}}',
+                    )
+                    
+                    # 包装成标准脚本（非 module），并添加启动日志
+                    # 注意：JS 代码中包含大量 { }，不能直接放在 f-string 中
+                    pagecrypt_scripts = (
+                        "<script>\n"
+                        "(function() {\n"
+                        '    console.log("[pagecrypt] Script starting...");\n'
+                        "    try {\n" + 
+                        raw_script_content + 
+                        "\n    } catch (e) {\n"
+                        '        console.error("[pagecrypt] Script execution error:", e);\n'
+                        '        document.getElementById("pagecrypt-load").innerText = "Script Error: " + e.message;\n'
+                        "    }\n"
+                        "})();\n"
+                        "</script>"
                     )
                     
                     # 添加全局错误捕获，直接显示在页面上
