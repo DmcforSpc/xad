@@ -198,19 +198,23 @@ def main():
                     page_title = title_match.group(1).replace(" - D.FS", "") if title_match else "Protected Page"
                     
                     fake_article = f"""
-                    <div class="post-content blur-content">
-                        <h1>{page_title}</h1>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                        <h2>Protected Content</h2>
-                        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                        <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                        <ul>
-                            <li>Elementum tempus egestas sed sed risus pretium quam vulputate.</li>
-                            <li>Dictum fusce ut placerat orci nulla pellentesque dignissim enim.</li>
-                        </ul>
-                        <p>Pretium fusce id velit ut tortor pretium viverra suspendisse. Cursus metus aliquam eleifend mi in nulla posuere.</p>
-                    </div>
+                    <article class="px-1 px-sm-2 px-lg-4 px-xl-0">
+                        <header>
+                            <h1 class="post-title">{page_title}</h1>
+                        </header>
+                        <div class="post-content blur-content">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            <h2>Protected Content</h2>
+                            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                            <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                            <ul>
+                                <li>Elementum tempus egestas sed sed risus pretium quam vulputate.</li>
+                                <li>Dictum fusce ut placerat orci nulla pellentesque dignissim enim.</li>
+                            </ul>
+                            <p>Pretium fusce id velit ut tortor pretium viverra suspendisse. Cursus metus aliquam eleifend mi in nulla posuere.</p>
+                        </div>
+                    </article>
                     """
                     
                     decrypt_ui = """
@@ -259,7 +263,6 @@ def main():
                         /* Ensure sidebar stays on top if needed */
                         #sidebar {
                             z-index: 1000 !important;
-                            position: relative;
                         }
 
                         .decrypt-card { 
