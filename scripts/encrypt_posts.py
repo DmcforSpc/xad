@@ -301,7 +301,17 @@ def main():
                     final_html = final_html.replace("<body>", f"<body>\n{decrypt_ui}")
 
                     # 将 pagecrypt 的脚本注入到 body 结束标签前
-                    final_html = final_html.replace("</body>", f"{pagecrypt_scripts}\n</body>")
+                    # 注意：在生产环境中，HTML 可能被压缩，</body> 标签可能被移除
+                    if "</body>" in final_html:
+                        final_html = final_html.replace("</body>", f"{pagecrypt_scripts}\n</body>")
+                        print(f"Injected script before </body> in {output_path}")
+                    elif "</html>" in final_html:
+                        final_html = final_html.replace("</html>", f"{pagecrypt_scripts}\n</html>")
+                        print(f"Injected script before </html> in {output_path}")
+                    else:
+                        # 如果没有 body/html 结束标签，直接追加到文件末尾
+                        final_html += f"\n{pagecrypt_scripts}"
+                        print(f"Appended script to end of file in {output_path}")
                     
                     with open(temp_output, "w", encoding="utf-8") as f:
                         f.write(final_html)
