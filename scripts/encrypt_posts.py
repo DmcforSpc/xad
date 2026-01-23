@@ -127,6 +127,18 @@ def main():
                         '}));const m=',
                         '};if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",__pc_init);}else{__pc_init();}const m=',
                     )
+                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                        'let l,u,w;',
+                        'console.log("[pagecrypt] elements", {input:a, header:s, msg:i, form:c, load:d, ready:document.readyState});let l,u,w;',
+                    )
+                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                        'const e=o("pre").innerText;',
+                        'const e=o("pre").innerText;console.log("[pagecrypt] payload", e?e.length:0);',
+                    )
+                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                        'catch(e){f(d),p(c),s.classList.replace("hidden","flex"),sessionStorage.k?sessionStorage.removeItem("k"):y("Wrong password."),a.value="",a.focus()}}',
+                        'catch(e){console.log("[pagecrypt] decrypt error",e);f(d),p(c),s.classList.replace("hidden","flex"),sessionStorage.k?sessionStorage.removeItem("k"):y("Wrong password."),a.value="",a.focus()}}',
+                    )
                     
                     
                     # 2. 密文 payload（通常在 <pre id="encrypted-payload"> 或类似结构，PageCrypt v5 使用 <pre hidden>）
@@ -194,6 +206,7 @@ def main():
                             align-items: center; 
                             justify-content: center; 
                             background-color: rgba(0, 0, 0, 0.4);
+                            pointer-events: none;
                         }
                         
                         .decrypt-card { 
@@ -206,6 +219,7 @@ def main():
                             max-width: 400px; 
                             width: 90%; 
                             backdrop-filter: blur(10px);
+                            pointer-events: auto;
                         }
                         
                         .lock-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
