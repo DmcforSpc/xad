@@ -119,6 +119,14 @@ def main():
                         '["input","header","#msg","form","#load"]',
                         '["#pagecrypt-input","#pagecrypt-header","#pagecrypt-msg","#pagecrypt-form","#pagecrypt-load"]',
                     )
+                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                        'document.addEventListener("DOMContentLoaded",(async()=>{',
+                        'const __pc_init = async()=>{',
+                    )
+                    pagecrypt_scripts = pagecrypt_scripts.replace(
+                        '}));const m=',
+                        '};if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",__pc_init);}else{__pc_init();}const m=',
+                    )
                     
                     
                     # 2. 密文 payload（通常在 <pre id="encrypted-payload"> 或类似结构，PageCrypt v5 使用 <pre hidden>）
