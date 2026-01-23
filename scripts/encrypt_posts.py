@@ -115,10 +115,27 @@ def main():
                     # 1. <script> 标签（包含解密逻辑）
                     scripts = re.findall(r'<script.*?>.*?</script>', pagecrypt_content, flags=re.DOTALL)
                     pagecrypt_scripts = "\n".join(scripts)
-                    pagecrypt_scripts = pagecrypt_scripts.replace(
-                        '["input","header","#msg","form","#load"]',
-                        '["#pagecrypt-input","#pagecrypt-header","#pagecrypt-msg","#pagecrypt-form","#pagecrypt-load"]',
-                    )
+                    
+                    # 验证并替换选择器
+                    target_selectors = '["input","header","#msg","form","#load"]'
+                    if target_selectors in pagecrypt_scripts:
+                        pagecrypt_scripts = pagecrypt_scripts.replace(
+                            target_selectors,
+                            '["#pagecrypt-input","#pagecrypt-header","#pagecrypt-msg","#pagecrypt-form","#pagecrypt-load"]',
+                        )
+                        print(f"Successfully patched selectors in {output_path}")
+                    else:
+                        print(f"WARNING: Could not find selectors {target_selectors} in {output_path}. JS patch may fail.")
+                        # 尝试一种更宽松的替换（以防 minification 差异）
+                        # PageCrypt 5.0.0 的源码中确实是这个顺序，但如果空格不同...
+                        # 我们可以尝试用正则替换
+                        pagecrypt_scripts = re.sub(
+                            r'\["input","header","#msg","form","#load"\]',
+                            '["#pagecrypt-input","#pagecrypt-header","#pagecrypt-msg","#pagecrypt-form","#pagecrypt-load"]',
+                            pagecrypt_scripts
+                        )
+
+                    # 注入初始化逻辑 patch
                     pagecrypt_scripts = pagecrypt_scripts.replace(
                         'document.addEventListener("DOMContentLoaded",(async()=>{',
                         'const __pc_init = async()=>{',
@@ -127,18 +144,33 @@ def main():
                         '}));const m=',
                         '};if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",__pc_init);}else{__pc_init();}const m=',
                     )
+                    # 增加调试日志
                     pagecrypt_scripts = pagecrypt_scripts.replace(
                         'let l,u,w;',
-                        'console.log("[pagecrypt] elements", {input:a, header:s, msg:i, form:c, load:d, ready:document.readyState});let l,u,w;',
+                        'console.log("[pagecrypt] elements", {input:a, header:s, msg:i, form:c, load:d, ready:document.readyState}); if(!a||!s||!i||!c||!d){ console.error("Missing elements!"); document.getElementById("pagecrypt-load").innerText = "Error: Missing DOM elements"; } let l,u,w;',
                     )
                     pagecrypt_scripts = pagecrypt_scripts.replace(
                         'const e=o("pre").innerText;',
-                        'const e=o("pre").innerText;console.log("[pagecrypt] payload", e?e.length:0);',
+                        'const e=o("pre").innerText;console.log("[pagecrypt] payload length", e?e.length:0);',
                     )
                     pagecrypt_scripts = pagecrypt_scripts.replace(
                         'catch(e){f(d),p(c),s.classList.replace("hidden","flex"),sessionStorage.k?sessionStorage.removeItem("k"):y("Wrong password."),a.value="",a.focus()}}',
-                        'catch(e){console.log("[pagecrypt] decrypt error",e);f(d),p(c),s.classList.replace("hidden","flex"),sessionStorage.k?sessionStorage.removeItem("k"):y("Wrong password."),a.value="",a.focus()}}',
+                        'catch(e){console.error("[pagecrypt] decrypt error",e); document.getElementById("pagecrypt-load").innerText = "Error: " + e.message; f(d),p(c),s.classList.replace("hidden","flex"),sessionStorage.k?sessionStorage.removeItem("k"):y("Wrong password."),a.value="",a.focus()}}',
                     )
+                    
+                    # 添加全局错误捕获，直接显示在页面上
+                    error_catcher = """
+                    <script>
+                    window.addEventListener('error', function(e) {
+                        var msg = e.message || e;
+                        console.error("Global Error:", msg);
+                        var loadEl = document.getElementById('pagecrypt-load');
+                        if(loadEl) {
+                            loadEl.innerHTML += '<br><span style="color:red;font-size:0.8em">' + msg + '</span>';
+                        }
+                    });
+                    </script>
+                    """
                     
                     
                     # 2. 密文 payload（通常在 <pre id="encrypted-payload"> 或类似结构，PageCrypt v5 使用 <pre hidden>）
@@ -201,7 +233,7 @@ def main():
                             left: 0;
                             width: 100%;
                             height: 100%;
-                            z-index: 100;
+                            z-index: 50; /* Lower z-index to allow sidebar (usually z-index 100+) to be clickable */
                             display: flex; 
                             align-items: center; 
                             justify-content: center; 
@@ -209,6 +241,12 @@ def main():
                             pointer-events: none;
                         }
                         
+                        /* Ensure sidebar stays on top if needed */
+                        #sidebar {
+                            z-index: 1000 !important;
+                            position: relative;
+                        }
+
                         .decrypt-card { 
                             background-color: var(--card-bg); 
                             padding: 2.5rem; 
