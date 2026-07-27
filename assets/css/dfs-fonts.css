@@ -1,0 +1,24 @@
+/* DFS 自托管展示字体（阶段三新增）
+ * DFS Grotesk = Space Grotesk 拉丁子集（可变字重 300-700, OFL, 按 RFN 条款改名）
+ * DFS Mono    = JetBrains Mono 拉丁子集（可变字重 100-800, OFL, 按 RFN 条款改名）
+ * 许可文本见 assets/fonts/OFL-*.txt；unicode-range 限拉丁，中文回落系统字体。
+ */
+@font-face {
+  font-family: 'DFS Grotesk';
+  src: url('../fonts/dfs-grotesk.woff2') format('woff2');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: optional; /* 预加载命中即用，未命中则回落系统字体且不再 swap → 零 CLS */
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-201D, U+2026,
+    U+2190-2199, U+2500-2502, U+2588, U+258C, U+25CF;
+}
+
+@font-face {
+  font-family: 'DFS Mono';
+  src: url('../fonts/dfs-mono.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: optional; /* 预加载命中即用，未命中则回落系统字体且不再 swap → 零 CLS */
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-201D, U+2026,
+    U+2190-2199, U+2500-2502, U+2588, U+258C, U+25CF;
+}

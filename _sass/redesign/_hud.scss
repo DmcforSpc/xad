@@ -1,0 +1,203 @@
+/* HUD 化站点骨架：侧栏左轨 / 顶栏 / 页脚 / back-to-top / 搜索浮层换肤
+ * 只动样式，DOM 与全部契约 ID（#sidebar/#sidebar-trigger/#mask/#mode-toggle/
+ * #search-* / #back-to-top）不动。
+ */
+
+/* ---- 侧栏 → HUD 左轨 ---- */
+#sidebar {
+  /* 覆盖旧版侧栏背景图（background3.jpg 已退役） */
+  background-image: none;
+  border-right: 1px solid var(--dfs-hairline);
+
+  .profile-wrapper {
+    margin-top: 2.5rem;
+  }
+
+  #avatar {
+    width: 72px;
+    height: 72px;
+    border: 1px solid var(--dfs-hairline);
+    box-shadow: 0 0 0 4px var(--dfs-acc-ghost);
+    transition: box-shadow var(--dfs-t-micro) var(--dfs-ease-out);
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+
+    &:hover {
+      box-shadow: 0 0 0 6px var(--dfs-acc-ghost), 0 0 24px var(--dfs-acc-glow);
+    }
+  }
+
+  .site-title {
+    font-family: var(--dfs-font-mono);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--site-title-color);
+
+    &::after {
+      content: '_';
+      color: var(--dfs-acc);
+      animation: dfs-caret-blink 1.2s steps(1) infinite;
+    }
+  }
+
+  .site-subtitle {
+    font-size: 0.8rem;
+    color: var(--site-subtitle-color);
+  }
+
+  /* 导航：mono 编号列表（图标退场，序号上场） */
+  ul.nav {
+    counter-reset: dfs-nav;
+
+    .nav-item {
+      counter-increment: dfs-nav;
+      opacity: 1;
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-radius: var(--dfs-r-sm);
+
+        i {
+          display: none;
+        }
+
+        &::before {
+          content: '0' counter(dfs-nav);
+          font-family: var(--dfs-font-mono);
+          font-size: 0.7rem;
+          font-weight: 400;
+          color: var(--dfs-ink-muted);
+          letter-spacing: 0.05em;
+          transition: color var(--dfs-t-micro) var(--dfs-ease-out);
+        }
+
+        span {
+          font-size: 0.85rem;
+          letter-spacing: 0.12em;
+        }
+      }
+
+      &.active .nav-link::before,
+      .nav-link:hover::before {
+        color: var(--dfs-acc);
+      }
+    }
+  }
+
+  /* hover 时兄弟项变暗（:has 窄作用域）+ 键盘 :focus-within 对等 */
+  @media (pointer: fine) {
+    ul.nav:has(.nav-link:hover) .nav-item:not(:hover) .nav-link,
+    ul.nav:has(.nav-link:focus-visible)
+      .nav-item:not(:focus-within)
+      .nav-link {
+      opacity: 0.45;
+      transition: opacity var(--dfs-t-micro) var(--dfs-ease-out);
+    }
+  }
+}
+
+/* 移动端抽屉态：强制不透明底（透明抽屉叠内容不可读） */
+@media (max-width: 849px) {
+  #sidebar {
+    background: var(--dfs-bg-1);
+  }
+}
+
+@keyframes dfs-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---- 顶栏 ---- */
+#topbar-wrapper {
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--dfs-hairline);
+}
+
+#breadcrumb {
+  font-family: var(--dfs-font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+
+  span:not(:last-child)::after {
+    content: ' /';
+    margin: 0 0.15rem;
+  }
+}
+
+/* ---- back-to-top ---- */
+#back-to-top {
+  background: var(--dfs-bg-1);
+  border: 1px solid var(--dfs-hairline);
+  border-radius: var(--dfs-r-sm);
+  transition:
+    border-color var(--dfs-t-micro) var(--dfs-ease-out),
+    box-shadow var(--dfs-t-micro) var(--dfs-ease-out);
+
+  &:hover {
+    border-color: var(--dfs-acc);
+    box-shadow: 0 0 16px var(--dfs-acc-glow);
+  }
+}
+
+/* ---- 页脚 HUD ---- */
+footer {
+  border-top: 1px solid var(--dfs-hairline);
+  padding-top: 1rem;
+  font-family: var(--dfs-font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+
+  #visitor-stats {
+    color: var(--dfs-ink-muted);
+
+    .visitor-item i {
+      color: var(--dfs-acc);
+      font-size: 0.7rem;
+    }
+
+    span[id^='busuanzi'] {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .dfs-exit {
+    color: var(--dfs-ink-muted);
+    user-select: none;
+
+    .dfs-exit-cmd {
+      color: var(--dfs-acc);
+    }
+
+    &:hover .dfs-exit-cmd {
+      color: var(--dfs-amber);
+    }
+  }
+}
+
+/* ---- 搜索浮层换肤（ID/结构不动） ---- */
+#search-result-wrapper {
+  #search-hints .post-tag {
+    font-family: var(--dfs-font-mono);
+    border: 1px solid var(--tag-border);
+    border-radius: var(--dfs-r-sm);
+  }
+
+  #search-results a {
+    color: var(--dfs-acc);
+  }
+}
+
+#search {
+  border-radius: var(--dfs-r-sm);
+
+  input {
+    font-family: var(--dfs-font-mono);
+  }
+}

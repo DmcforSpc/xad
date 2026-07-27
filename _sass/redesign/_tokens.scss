@@ -1,0 +1,29 @@
+/* 非彩色 design tokens：字体 / 圆角 / 缓动 / 时长 / z 轴刻度
+ * 彩色 token 在 _themes.scss（需按暗亮模式切换）
+ */
+:root {
+  /* 字体栈 */
+  --dfs-font-sans: 'DFS Grotesk', -apple-system, 'PingFang SC',
+    'HarmonyOS Sans SC', 'MiSans', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans CJK SC', 'Noto Sans SC', sans-serif;
+  --dfs-font-mono: 'DFS Mono', ui-monospace, 'SFMono-Regular', 'Cascadia Mono',
+    Consolas, 'Liberation Mono', monospace;
+
+  /* 圆角 */
+  --dfs-r-sm: 6px;
+  --dfs-r-md: 12px;
+  --dfs-r-lg: 16px;
+
+  /* 动效 token */
+  --dfs-t-micro: 0.2s;
+  --dfs-t-enter: 0.6s;
+  --dfs-t-enter-slow: 0.8s;
+  --dfs-ease-out: cubic-bezier(0.14, 1, 0.34, 1);
+  --dfs-ease-hard: cubic-bezier(0.9, 0, 0.1, 1);
+  --dfs-ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* z 轴刻度（Chirpy: sidebar z-2, mask z-1, back-to-top 未设） */
+  --dfs-z-rail: 10;
+  --dfs-z-progress: 1050;
+  --dfs-z-cursor: 2000;
+}

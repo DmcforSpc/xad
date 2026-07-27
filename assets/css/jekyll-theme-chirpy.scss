@@ -1,0 +1,19 @@
+---
+---
+
+/* 基于 Chirpy 7.3.1 的样式入口（站点覆盖副本）
+ * 改动：@use 'main(.bundle)' 之后引入站点自有 redesign 层（深空档案馆重设计）。
+ * 约束（实测）：所有 @use 必须位于任何 CSS 规则之前，否则构建报错。
+ * 原尾部自定义样式已迁入 _sass/redesign/_legacy.scss；
+ * 50 圆圈背景动画与侧栏背景图已退役（见 _sass/redesign/）。
+ * 还原：删除 @use 'redesign' 行并按 git 历史恢复尾部样式。
+ */
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+@use 'redesign';

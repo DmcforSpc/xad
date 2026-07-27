@@ -1,0 +1,42 @@
+---
+layout: page
+# 友链布局
+---
+
+{% include lang.html %}
+
+<div class="friends-final-wrapper">
+  <div class="d-flex justify-content-between">
+    <span class="ms-2">
+      <i class="fas fa-link fa-fw"></i>
+      <span class="mx-2">{{ page.title }}</span>
+      <span class="text-muted small font-weight-light">
+        {{ site.data.friends.size }}
+        {{ site.data.locales[lang].friends.measure | default: " 位小伙伴" }}
+      </span>
+    </span>
+  </div>
+
+  <div class="friends-container">
+    {% for friend in site.data.friends %}
+      <div class="friend-card-item" data-tilt data-reveal style="--i: {{ forloop.index0 | modulo: 3 }}">
+        <a href="{{ friend.url }}" class="friend-card-link dfs-plain" target="_blank" rel="noopener noreferrer">
+          <div class="friend-card-img-wrapper">
+            <img 
+              src="{{ friend.avatar }}" 
+              alt="{{ friend.name }}" 
+              class="friend-card-avatar"
+              data-fallback="{{ '/assets/img/favicons/m.png' | relative_url }}"
+              onerror="this.src=this.dataset.fallback; this.onerror=null;"
+            >
+          </div>
+          <div class="friend-card-info">
+            <div class="friend-card-name">{{ friend.name }}</div>
+            <div class="friend-card-desc">{{ friend.desc }}</div>
+          </div>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+

@@ -1,0 +1,178 @@
+---
+layout: default
+title: "404: flag not found"
+permalink: /404.html
+---
+
+<!-- 基于 Chirpy 7.3.1 的 assets/404.html 重写（终端彩蛋 404）。
+  自包含：可拖拽小终端窗口 + 交互命令行（ls / cat / cd / help …）。
+  拖拽为增强，输入行为主，键盘完全可达。还原：恢复 gem 原版即可。 -->
+
+<div id="dfs-404" class="dfs-404">
+  <section
+    class="dfs-term"
+    id="dfs-term"
+    aria-label="404 终端"
+  >
+    <header class="dfs-term-bar" id="dfs-term-bar" aria-hidden="true">
+      <span class="dfs-term-dots"><i></i><i></i><i></i></span>
+      <span class="dfs-term-title">dfs@blog:~ — 404</span>
+    </header>
+
+    <div class="dfs-term-body">
+      <output class="dfs-term-out" id="dfs-term-out" aria-live="polite"></output>
+      <div class="dfs-term-input-line">
+        <span class="dfs-term-prompt" aria-hidden="true">visitor@dfs:~$</span>
+        <input
+          type="text"
+          id="dfs-term-in"
+          class="dfs-term-in"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          aria-label="终端命令输入"
+        >
+      </div>
+    </div>
+  </section>
+
+  <p class="dfs-404-hint">
+    <a href="{{ '/' | relative_url }}" class="dfs-btn">cd ~ → 返回首页</a>
+  </p>
+</div>
+
+<script>
+  (function () {
+    var HOME = '{{ '/' | relative_url }}';
+    var out = document.getElementById('dfs-term-out');
+    var input = document.getElementById('dfs-term-in');
+    var term = document.getElementById('dfs-term');
+    var bar = document.getElementById('dfs-term-bar');
+
+    var FS = {
+      'flag.txt': 'flag{y0u_f0und_th3_h1dd3n_p4th_but_th3_p4g3_1s_g0n3}',
+      'readme.md': '你迷路了。这里是 404 —— 请求的资源不存在。\n试试 `ls` 看看还有什么，或 `cd ~` 回家。',
+      '.secret': '嘘…… 真正的宝藏是一路上认识的 bug。',
+      'whoami.sh': '#!/bin/sh\necho "just a visitor who took a wrong turn"'
+    };
+
+    var BANNER = [
+      '  ___   ___  _  _',
+      ' | | | | | || || |    404: flag not found',
+      ' |_|_| |___||_||_|    请求的路径不存在于此文件系统',
+      '',
+      "输入 `help` 查看可用命令。"
+    ].join('\n');
+
+    function print(text, cls) {
+      var div = document.createElement('div');
+      if (cls) div.className = cls;
+      div.textContent = text;
+      out.appendChild(div);
+      out.scrollTop = out.scrollHeight;
+    }
+
+    function echoCmd(cmd) {
+      print('visitor@dfs:~$ ' + cmd, 'dfs-term-echo');
+    }
+
+    var COMMANDS = {
+      help: function () {
+        print('可用命令：\n  ls              列出当前目录\n  cat <file>      查看文件内容\n  cd ~ | cd /     返回首页\n  whoami          你是谁\n  pwd             当前路径\n  clear           清屏\n  sudo <cmd>      试试看会怎样\n  help            显示本帮助');
+      },
+      ls: function () {
+        print(Object.keys(FS).join('    '));
+      },
+      cat: function (args) {
+        var name = args[0];
+        if (!name) return print('cat: 缺少文件名', 'dfs-term-err');
+        if (FS.hasOwnProperty(name)) {
+          print(FS[name]);
+          if (name === 'flag.txt') print('（恭喜！但这仍然是 404 —— 你要找的页面确实不在。）', 'dfs-term-acc');
+        } else {
+          print('cat: ' + name + ': No such file or directory', 'dfs-term-err');
+        }
+      },
+      cd: function (args) {
+        var target = args[0] || '~';
+        if (target === '~' || target === '/' || target === 'home' || target === '..') {
+          print('正在返回首页……');
+          setTimeout(function () { window.location.href = HOME; }, 500);
+        } else {
+          print('cd: ' + target + ': Not a directory', 'dfs-term-err');
+        }
+      },
+      whoami: function () { print('just a visitor who took a wrong turn'); },
+      pwd: function () { print('/dev/null/404'); },
+      clear: function () { out.innerHTML = ''; },
+      sudo: function (args) {
+        if (!args.length) return print('usage: sudo <command>', 'dfs-term-err');
+        print('visitor is not in the sudoers file. This incident will be reported. 🐾', 'dfs-term-err');
+      },
+      echo: function (args) { print(args.join(' ')); }
+    };
+
+    function run(line) {
+      var parts = line.trim().split(/\s+/);
+      var cmd = parts.shift();
+      if (!cmd) return;
+      if (COMMANDS.hasOwnProperty(cmd)) {
+        COMMANDS[cmd](parts);
+      } else {
+        print(cmd + ': command not found（试试 `help`）', 'dfs-term-err');
+      }
+    }
+
+    print(BANNER, 'dfs-term-banner');
+
+    var history = [];
+    var hi = -1;
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        var line = input.value;
+        echoCmd(line);
+        if (line.trim()) { history.push(line); hi = history.length; }
+        run(line);
+        input.value = '';
+      } else if (e.key === 'ArrowUp') {
+        if (hi > 0) { hi--; input.value = history[hi] || ''; }
+        e.preventDefault();
+      } else if (e.key === 'ArrowDown') {
+        if (hi < history.length - 1) { hi++; input.value = history[hi] || ''; }
+        else { hi = history.length; input.value = ''; }
+        e.preventDefault();
+      }
+    });
+
+    /* 聚焦终端任意处 → 输入框获得焦点 */
+    term.addEventListener('click', function (e) {
+      if (window.getSelection().toString()) return;
+      input.focus();
+    });
+
+    /* 拖拽（增强；指针设备 + 非 reduced-motion） */
+    var canDrag = window.matchMedia('(pointer: fine)').matches &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (canDrag) {
+      var dragging = false, ox = 0, oy = 0, tx = 0, ty = 0;
+      bar.style.cursor = 'grab';
+      bar.addEventListener('pointerdown', function (e) {
+        dragging = true; ox = e.clientX - tx; oy = e.clientY - ty;
+        bar.style.cursor = 'grabbing';
+        bar.setPointerCapture(e.pointerId);
+      });
+      bar.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        tx = e.clientX - ox; ty = e.clientY - oy;
+        term.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
+      });
+      bar.addEventListener('pointerup', function (e) {
+        dragging = false; bar.style.cursor = 'grab';
+        bar.releasePointerCapture(e.pointerId);
+      });
+    }
+
+    input.focus();
+  })();
+</script>

@@ -1,0 +1,17 @@
+/* DFS redesign 层入口（阶段三新增，站点自有，不遮蔽 gem 文件）
+ * 由 assets/css/jekyll-theme-chirpy.scss 在 @use 'main(.bundle)' 之后引入，
+ * 依靠级联顺序覆写 Chirpy 7.3.1 的 CSS 自定义属性与组件样式。
+ * 还原：从入口移除 @use 'redesign' 并删除本目录。
+ */
+@forward 'tokens';
+@forward 'themes';
+@forward 'base';
+@forward 'hud';
+@forward 'home';
+@forward 'post';
+@forward 'pages';
+@forward 'terminal';
+@forward 'components';
+@forward 'motion';
+@forward 'transitions';
+@forward 'legacy';

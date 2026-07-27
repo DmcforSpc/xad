@@ -1,0 +1,251 @@
+/* 双模式色板 —— 「墨渊终端」(暗, 默认) / 「纸上档案」(亮)
+ *
+ * 机制说明（重要）：Chirpy gem 内部以相对路径 @use 引主题文件，
+ * 站点 shadow _sass/themes/_dark.scss 会静默失效（已实测证实）。
+ * 因此这里复刻 gem base/_base.scss 的四组「媒体查询 × data-mode」选择器组合，
+ * 以同特异性、更靠后的级联位置覆写 Chirpy 的 CSS 自定义属性。
+ * 暗亮切换契约（html[data-mode] / sessionStorage / postMessage theme-mode）零触碰。
+ *
+ * 全部配色对已程序化验算 WCAG：正文 ≥ 12:1，muted ≥ 5.7:1，强调 ≥ 9.5:1。
+ */
+
+@mixin dfs-dark {
+  color-scheme: dark;
+
+  /* ---- DFS 扩展 token ---- */
+  --dfs-bg-0: #0b0e14;
+  --dfs-bg-1: #10141c;
+  --dfs-bg-2: #151a24;
+  --dfs-bg-3: #1b2130;
+  --dfs-ink: #c9d1e0;
+  --dfs-ink-strong: #edf1f8;
+  --dfs-ink-muted: #8a94a8;
+  --dfs-acc: #9bb8e1;
+  --dfs-acc-ghost: rgba(155, 184, 225, 0.12);
+  --dfs-acc-glow: rgba(155, 184, 225, 0.35);
+  --dfs-amber: #ffb454;
+  --dfs-hairline: rgba(138, 148, 168, 0.16);
+  --dfs-grid-line: rgba(138, 148, 168, 0.07);
+  --dfs-noise-opacity: 0.35;
+  --dfs-ghost-ink: rgba(155, 184, 225, 0.045);
+  --dfs-card-sheen: rgba(155, 184, 225, 0.08);
+  --dfs-locked: #d9b45c;
+  --dfs-selection-bg: rgba(155, 184, 225, 0.28);
+
+  /* ---- 覆写 Chirpy 框架变量 ---- */
+  --main-bg: var(--dfs-bg-0);
+  --mask-bg: rgba(11, 14, 20, 0.6);
+  --main-border-color: var(--dfs-hairline);
+  --text-color: var(--dfs-ink);
+  --text-muted-color: var(--dfs-ink-muted);
+  --text-muted-highlight-color: var(--dfs-ink);
+  --heading-color: var(--dfs-ink-strong);
+  --label-color: var(--dfs-ink-muted);
+  --blockquote-border-color: var(--dfs-hairline);
+  --blockquote-text-color: var(--dfs-ink-muted);
+  --link-color: var(--dfs-acc);
+  --link-underline-color: rgba(155, 184, 225, 0.4);
+  --button-bg: var(--dfs-bg-1);
+  --btn-border-color: var(--dfs-hairline);
+  --btn-backtotop-color: var(--dfs-acc);
+  --btn-backtotop-border-color: var(--dfs-hairline);
+  --card-bg: var(--dfs-bg-1);
+  --card-hovor-bg: var(--dfs-bg-2);
+  --card-shadow: 0 0 0 1px var(--dfs-hairline);
+  --card-header-bg: var(--dfs-bg-2);
+  --img-bg: radial-gradient(circle, var(--dfs-bg-1) 0%, var(--dfs-bg-0) 100%);
+  --shimmer-bg: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(155, 184, 225, 0.12) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+
+  /* 侧栏（HUD 左轨） */
+  --site-title-color: var(--dfs-ink-strong);
+  --site-subtitle-color: var(--dfs-ink-muted);
+  --sidebar-bg: var(--dfs-bg-0);
+  --sidebar-border-color: var(--dfs-hairline);
+  --sidebar-muted-color: var(--dfs-ink-muted);
+  --sidebar-active-color: var(--dfs-acc);
+  --sidebar-hover-bg: var(--dfs-acc-ghost);
+  --sidebar-btn-bg: transparent;
+  --sidebar-btn-color: var(--dfs-ink-muted);
+  --avatar-border-color: var(--dfs-hairline);
+
+  /* 顶栏 / 搜索 */
+  --topbar-bg: rgba(11, 14, 20, 0.7);
+  --topbar-text-color: var(--dfs-ink);
+  --search-border-color: var(--dfs-hairline);
+  --search-icon-color: var(--dfs-ink-muted);
+  --input-focus-border-color: var(--dfs-acc);
+
+  /* 首页 / 分页 */
+  --post-list-text-color: var(--dfs-ink-muted);
+  --btn-patinator-text-color: var(--dfs-ink);
+  --btn-paginator-hover-color: var(--dfs-bg-2);
+
+  /* 文章页 */
+  --toc-highlight: var(--dfs-acc);
+  --toc-popup-border-color: var(--dfs-hairline);
+  --btn-share-color: var(--dfs-ink-muted);
+  --btn-share-hover-color: var(--dfs-acc);
+  --tb-odd-bg: var(--dfs-bg-1);
+  --tb-even-bg: var(--dfs-bg-0);
+  --tb-border-color: var(--dfs-hairline);
+  --dash-color: var(--dfs-hairline);
+  --prompt-text-color: rgba(201, 209, 224, 0.85);
+
+  /* 标签 / 分类 / 归档 */
+  --tag-border: rgba(155, 184, 225, 0.25);
+  --tag-shadow: var(--dfs-bg-1);
+  --tag-hover: var(--dfs-bg-2);
+  --search-tag-bg: var(--dfs-bg-1);
+  --categories-border: var(--dfs-hairline);
+  --categories-hover-bg: var(--dfs-bg-2);
+  --categories-icon-hover-color: var(--dfs-acc);
+  --timeline-color: var(--dfs-hairline);
+  --timeline-node-bg: var(--dfs-acc);
+  --timeline-year-dot-color: var(--dfs-acc);
+
+  /* 代码块 */
+  --language-border-color: var(--dfs-bg-3);
+  --inline-code-bg: var(--dfs-bg-2);
+  --highlight-bg-color: var(--dfs-bg-1);
+  --highlighter-rouge-color: var(--dfs-acc);
+  --highlight-lineno-color: #767f92; /* ≥4.5:1 on code bg（WCAG AA） */
+  --code-header-text-color: var(--dfs-ink-muted);
+  --code-header-muted-color: var(--dfs-bg-3);
+  --code-header-icon-color: var(--dfs-ink-muted);
+  --clipboard-checked-color: var(--dfs-acc);
+  --filepath-text-color: var(--dfs-ink);
+}
+
+@mixin dfs-light {
+  color-scheme: light;
+
+  /* ---- DFS 扩展 token ---- */
+  --dfs-bg-0: #f6f4ee;
+  --dfs-bg-1: #fcfbf7;
+  --dfs-bg-2: #efece3;
+  --dfs-bg-3: #e6e2d6;
+  --dfs-ink: #22262e;
+  --dfs-ink-strong: #14171d;
+  --dfs-ink-muted: #5b6472;
+  --dfs-acc: #35608f;
+  --dfs-acc-ghost: rgba(53, 96, 143, 0.1);
+  --dfs-acc-glow: rgba(53, 96, 143, 0.22);
+  --dfs-amber: #8c4a00;
+  --dfs-hairline: rgba(34, 38, 46, 0.16);
+  --dfs-grid-line: rgba(34, 38, 46, 0.06);
+  --dfs-noise-opacity: 0.5;
+  --dfs-ghost-ink: rgba(34, 38, 46, 0.05);
+  --dfs-card-sheen: rgba(53, 96, 143, 0.06);
+  --dfs-locked: #8a6d1f;
+  --dfs-selection-bg: rgba(53, 96, 143, 0.2);
+
+  /* ---- 覆写 Chirpy 框架变量 ---- */
+  --main-bg: var(--dfs-bg-0);
+  --mask-bg: rgba(34, 38, 46, 0.4);
+  --main-border-color: var(--dfs-hairline);
+  --text-color: var(--dfs-ink);
+  --text-muted-color: var(--dfs-ink-muted);
+  --text-muted-highlight-color: var(--dfs-ink);
+  --heading-color: var(--dfs-ink-strong);
+  --label-color: var(--dfs-ink-muted);
+  --blockquote-border-color: var(--dfs-hairline);
+  --blockquote-text-color: var(--dfs-ink-muted);
+  --link-color: var(--dfs-acc);
+  --link-underline-color: rgba(53, 96, 143, 0.35);
+  --button-bg: var(--dfs-bg-1);
+  --btn-border-color: var(--dfs-hairline);
+  --btn-backtotop-color: var(--dfs-acc);
+  --btn-backtotop-border-color: var(--dfs-hairline);
+  --card-bg: var(--dfs-bg-1);
+  --card-hovor-bg: #ffffff;
+  --card-shadow: 0 0 0 1px var(--dfs-hairline);
+  --card-header-bg: var(--dfs-bg-2);
+  --img-bg: radial-gradient(circle, #ffffff 0%, var(--dfs-bg-1) 100%);
+  --shimmer-bg: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+
+  --site-title-color: var(--dfs-ink-strong);
+  --site-subtitle-color: var(--dfs-ink-muted);
+  --sidebar-bg: var(--dfs-bg-0);
+  --sidebar-border-color: var(--dfs-hairline);
+  --sidebar-muted-color: var(--dfs-ink-muted);
+  --sidebar-active-color: var(--dfs-acc);
+  --sidebar-hover-bg: var(--dfs-acc-ghost);
+  --sidebar-btn-bg: transparent;
+  --sidebar-btn-color: var(--dfs-ink-muted);
+  --avatar-border-color: var(--dfs-hairline);
+
+  --topbar-bg: rgba(246, 244, 238, 0.7);
+  --topbar-text-color: var(--dfs-ink);
+  --search-border-color: var(--dfs-hairline);
+  --search-icon-color: var(--dfs-ink-muted);
+  --input-focus-border-color: var(--dfs-acc);
+
+  --post-list-text-color: var(--dfs-ink-muted);
+  --btn-patinator-text-color: var(--dfs-ink);
+  --btn-paginator-hover-color: var(--dfs-bg-2);
+
+  --toc-highlight: var(--dfs-acc);
+  --toc-popup-border-color: var(--dfs-hairline);
+  --btn-share-color: var(--dfs-ink-muted);
+  --btn-share-hover-color: var(--dfs-acc);
+  --tb-odd-bg: var(--dfs-bg-1);
+  --tb-even-bg: var(--dfs-bg-0);
+  --tb-border-color: var(--dfs-hairline);
+  --dash-color: var(--dfs-hairline);
+  --prompt-text-color: rgba(34, 38, 46, 0.85);
+
+  --tag-border: rgba(53, 96, 143, 0.25);
+  --tag-shadow: var(--dfs-bg-2);
+  --tag-hover: var(--dfs-bg-2);
+  --search-tag-bg: var(--dfs-bg-1);
+  --categories-border: var(--dfs-hairline);
+  --categories-hover-bg: var(--dfs-bg-2);
+  --categories-icon-hover-color: var(--dfs-acc);
+  --timeline-color: var(--dfs-hairline);
+  --timeline-node-bg: var(--dfs-acc);
+  --timeline-year-dot-color: var(--dfs-acc);
+
+  --language-border-color: var(--dfs-bg-3);
+  --inline-code-bg: var(--dfs-bg-2);
+  --highlight-bg-color: var(--dfs-bg-1);
+  --highlighter-rouge-color: var(--dfs-acc);
+  --highlight-lineno-color: #6a7080; /* ≥4.5:1 on light code bg */
+  --code-header-text-color: var(--dfs-ink-muted);
+  --code-header-muted-color: var(--dfs-bg-3);
+  --code-header-icon-color: var(--dfs-ink-muted);
+  --clipboard-checked-color: var(--dfs-acc);
+  --filepath-text-color: var(--dfs-ink);
+}
+
+/* 复刻 gem base/_base.scss 的选择器结构（切换契约不动，级联覆写生效） */
+@media (prefers-color-scheme: light) {
+  html:not([data-mode]),
+  html[data-mode='light'] {
+    @include dfs-light;
+  }
+
+  html[data-mode='dark'] {
+    @include dfs-dark;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-mode]),
+  html[data-mode='dark'] {
+    @include dfs-dark;
+  }
+
+  html[data-mode='light'] {
+    @include dfs-light;
+  }
+}

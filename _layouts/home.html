@@ -1,0 +1,286 @@
+---
+layout: default
+---
+<!-- 基于 Chirpy 7.3.1 的 _layouts/home.html 全量重写（深空档案馆首页）。
+  保留：layout:default 链、置顶文章窗口化分页逻辑（移植自 gem）、post-paginator include。
+  第 1 页渲染 hero + 编号章节叙事；第 2+ 页直达文章网格。
+  还原：删除本文件即回落 gem 原版首页。 -->
+
+{% include lang.html %}
+
+{% assign all_pinned = site.posts | where: 'pin', 'true' %}
+{% assign all_normal = site.posts | where_exp: 'item', 'item.pin != true and item.hidden != true' %}
+{% assign posts = '' | split: '' %}
+
+<!-- 置顶窗口化（移植自 gem home.html） -->
+{% assign visible_start = paginator.page | minus: 1 | times: paginator.per_page %}
+{% assign visible_end = visible_start | plus: paginator.per_page %}
+
+{% if all_pinned.size > visible_start %}
+  {% if all_pinned.size > visible_end %}
+    {% assign pinned_size = paginator.per_page %}
+  {% else %}
+    {% assign pinned_size = all_pinned.size | minus: visible_start %}
+  {% endif %}
+
+  {% for i in (visible_start..all_pinned.size) limit: pinned_size %}
+    {% assign posts = posts | push: all_pinned[i] %}
+  {% endfor %}
+{% else %}
+  {% assign pinned_size = 0 %}
+{% endif %}
+
+{% assign normal_size = paginator.posts | size | minus: pinned_size %}
+
+{% if normal_size > 0 %}
+  {% if pinned_size > 0 %}
+    {% assign normal_start = 0 %}
+  {% else %}
+    {% assign normal_start = visible_start | minus: all_pinned.size %}
+  {% endif %}
+
+  {% assign normal_end = normal_start | plus: normal_size | minus: 1 %}
+
+  {% for i in (normal_start..normal_end) %}
+    {% assign posts = posts | push: all_normal[i] %}
+  {% endfor %}
+{% endif %}
+
+{% assign is_first_page = true %}
+{% if paginator.page and paginator.page > 1 %}
+  {% assign is_first_page = false %}
+{% endif %}
+
+{% assign start_seconds = site.start_date | date: '%s' %}
+{% assign now_seconds = 'now' | date: '%s' %}
+{% assign days_running = now_seconds | minus: start_seconds | divided_by: 86400 %}
+
+{% if is_first_page %}
+  <!-- ======== //00 HERO ======== -->
+  <section id="hero" class="dfs-hero">
+    <canvas id="dfs-net" aria-hidden="true"></canvas>
+    <div class="dfs-net-fallback" aria-hidden="true"></div>
+
+    <div class="dfs-hero-inner">
+      <p class="dfs-prompt" aria-hidden="true">
+        <span id="dfs-typer"></span><span class="dfs-caret"></span>
+      </p>
+
+      <!-- LCP 元素：首帧完整绘制，无任何遮蔽初态 -->
+      <h1 class="dfs-site-name">{{ site.title }}</h1>
+      <p class="dfs-tagline">{{ site.tagline }}</p>
+
+      <p class="dfs-hero-tags" aria-hidden="true">
+        <span>[SECURITY]</span><span>[CTF]</span><span>[CRYPTO]</span><span>[WEB]</span>
+      </p>
+    </div>
+
+    <a href="#chapter-01" class="dfs-scroll-hint">
+      scroll
+      <span class="dfs-scroll-line" aria-hidden="true"></span>
+    </a>
+  </section>
+
+  <!-- ======== //01 精选 · 最新 ======== -->
+  <section id="chapter-01" class="dfs-chapter">
+    <span class="dfs-ghost" aria-hidden="true">01</span>
+
+    <header class="dfs-chapter-head">
+      <span class="dfs-chapter-no dfs-scramble" data-scramble="//01">//01</span>
+      <h2 data-reveal="mask">精选 · 最新</h2>
+    </header>
+
+    <div class="dfs-bento">
+      {% for post in posts %}
+        {% assign seed = post.title | size | times: 137 %}
+        {% assign gx = seed | modulo: 90 | plus: 5 %}
+        {% assign gy = seed | times: 3 | modulo: 60 | plus: 5 %}
+
+        <a
+          href="{{ post.url | relative_url }}"
+          class="dfs-card{% if forloop.first %} dfs-card-featured{% endif %}"
+          style="--card-gx: {{ gx }}%; --card-gy: {{ gy }}%; --i: {{ forloop.index0 | modulo: 6 }}"
+          data-reveal
+          data-tilt
+        >
+          <span class="dfs-card-meta">
+            {% if post.categories.size > 0 %}
+              <span class="dfs-card-cat">{{ post.categories | first }}</span>
+            {% endif %}
+            <time class="dfs-mono">{{ post.date | date: '%Y-%m-%d' }}</time>
+            {% if post.pin %}
+              <span class="dfs-card-badge dfs-badge-pin">PINNED</span>
+            {% elsif post.locked %}
+              <span class="dfs-card-badge dfs-badge-lock">LOCKED</span>
+            {% endif %}
+          </span>
+
+          <h3>{{ post.title }}</h3>
+
+          <p class="dfs-card-desc">
+            {% if post.description %}
+              {{ post.description }}
+            {% else %}
+              {{ post.content | strip_html | truncate: 100 }}
+            {% endif %}
+          </p>
+
+          <span class="dfs-card-foot">
+            <span>{% include read-time.html content=post.content prompt=true lang=lang %}</span>
+            <span aria-hidden="true">→</span>
+          </span>
+        </a>
+
+        {% if forloop.first %}
+          <!-- 反色终端卡：归档 CTA（每屏一张焦点卡） -->
+          <a
+            href="{{ '/archives/' | relative_url }}"
+            class="dfs-card dfs-card-invert"
+            style="--i: 1"
+            data-reveal
+          >
+            <span class="dfs-card-term-bar" aria-hidden="true">
+              <i></i><i></i><i></i>
+              <span>dfs@blog:~/archives</span>
+            </span>
+            <h3>全部 {{ site.posts | size }} 篇文章</h3>
+            <span class="dfs-card-cta">$ ls -la --sort=time →</span>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ======== //02 分类导航 ======== -->
+  <section id="chapter-02" class="dfs-chapter">
+    <span class="dfs-ghost" aria-hidden="true">02</span>
+
+    <header class="dfs-chapter-head">
+      <span class="dfs-chapter-no dfs-scramble" data-scramble="//02">//02</span>
+      <h2 data-reveal="mask">分类导航</h2>
+    </header>
+
+    <ul class="dfs-catnav">
+      {% assign sorted_cats = '' | split: '' %}
+      {% for cat in site.categories %}
+        {% assign size_key = cat[1] | size | prepend: '0000' | slice: -4, 4 %}
+        {% capture cat_entry %}{{ size_key }}::{{ cat[0] }}{% endcapture %}
+        {% assign sorted_cats = sorted_cats | push: cat_entry %}
+      {% endfor %}
+      {% assign sorted_cats = sorted_cats | sort | reverse %}
+
+      {% for entry in sorted_cats %}
+        {% assign parts = entry | split: '::' %}
+        {% assign cat_name = parts[1] %}
+        {% assign cat_posts = site.categories[cat_name] %}
+        {% capture cat_url %}/categories/{{ cat_name | slugify | url_encode }}/{% endcapture %}
+        <li data-reveal style="--i: {{ forloop.index0 }}">
+          <a href="{{ cat_url | relative_url }}">
+            <span class="dfs-catnav-name">{{ cat_name }}</span>
+            <span class="dfs-catnav-count dfs-count" data-count="{{ cat_posts | size }}">{{ cat_posts | size }}</span>
+            <span class="dfs-catnav-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <!-- ======== //03 关于 · 统计 ======== -->
+  <section id="chapter-03" class="dfs-chapter">
+    <span class="dfs-ghost" aria-hidden="true">03</span>
+
+    <header class="dfs-chapter-head">
+      <span class="dfs-chapter-no dfs-scramble" data-scramble="//03">//03</span>
+      <h2 data-reveal="mask">关于 · 统计</h2>
+    </header>
+
+    <div class="dfs-about-grid">
+      <div class="dfs-about-text" data-reveal>
+        <p class="dfs-about-prompt" aria-hidden="true">cat about.md | head -3</p>
+        <p>{{ site.description | strip }}——渗透测试 walkthrough、CTF writeup、Web 安全与密码学学习笔记。</p>
+        <p>
+          <a href="{{ '/about/' | relative_url }}" class="dfs-btn" data-magnetic>关于我 →</a>
+        </p>
+      </div>
+
+      <div class="dfs-stats">
+        <div class="dfs-stat" data-reveal style="--i: 0">
+          <div class="dfs-stat-label">POSTS / 文章</div>
+          <div class="dfs-stat-value">
+            <span class="dfs-count" data-count="{{ site.posts | size }}">{{ site.posts | size }}</span>
+          </div>
+        </div>
+        <div class="dfs-stat" data-reveal style="--i: 1">
+          <div class="dfs-stat-label">CATEGORIES / 分类</div>
+          <div class="dfs-stat-value">
+            <span class="dfs-count" data-count="{{ site.categories | size }}">{{ site.categories | size }}</span>
+          </div>
+        </div>
+        <div class="dfs-stat" data-reveal style="--i: 2">
+          <div class="dfs-stat-label">TAGS / 标签</div>
+          <div class="dfs-stat-value">
+            <span class="dfs-count" data-count="{{ site.tags | size }}">{{ site.tags | size }}</span>
+          </div>
+        </div>
+        <div class="dfs-stat" data-reveal style="--i: 3">
+          <div class="dfs-stat-label">UPTIME / 运行</div>
+          <div class="dfs-stat-value">
+            <span class="dfs-count" data-count="{{ days_running }}">{{ days_running }}</span><span class="dfs-stat-unit">days</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 章节导航轨（桌面右缘；aria-current 由 home.js 维护） -->
+  <nav class="dfs-rail" aria-label="章节导航">
+    <ul>
+      <li><a href="#hero"><span class="dfs-rail-label">00 / HOME</span></a></li>
+      <li><a href="#chapter-01"><span class="dfs-rail-label">01 / 文章</span></a></li>
+      <li><a href="#chapter-02"><span class="dfs-rail-label">02 / 分类</span></a></li>
+      <li><a href="#chapter-03"><span class="dfs-rail-label">03 / 关于</span></a></li>
+    </ul>
+  </nav>
+{% else %}
+  <!-- 第 2+ 页：免叙事，直达网格 -->
+  <section class="dfs-chapter">
+    <header class="dfs-chapter-head">
+      <span class="dfs-chapter-no">//{{ paginator.page | prepend: '00' | slice: -2, 2 }}</span>
+      <h2>文章 · 第 {{ paginator.page }} 页</h2>
+    </header>
+
+    <div class="dfs-bento">
+      {% for post in posts %}
+        {% assign seed = post.title | size | times: 137 %}
+        {% assign gx = seed | modulo: 90 | plus: 5 %}
+        {% assign gy = seed | times: 3 | modulo: 60 | plus: 5 %}
+        <a
+          href="{{ post.url | relative_url }}"
+          class="dfs-card"
+          style="--card-gx: {{ gx }}%; --card-gy: {{ gy }}%; --i: {{ forloop.index0 | modulo: 6 }}"
+          data-reveal
+          data-tilt
+        >
+          <span class="dfs-card-meta">
+            {% if post.categories.size > 0 %}
+              <span class="dfs-card-cat">{{ post.categories | first }}</span>
+            {% endif %}
+            <time class="dfs-mono">{{ post.date | date: '%Y-%m-%d' }}</time>
+          </span>
+          <h3>{{ post.title }}</h3>
+          <p class="dfs-card-desc">
+            {% if post.description %}{{ post.description }}{% else %}{{ post.content | strip_html | truncate: 100 }}{% endif %}
+          </p>
+          <span class="dfs-card-foot">
+            <span>{% include read-time.html content=post.content prompt=true lang=lang %}</span>
+            <span aria-hidden="true">→</span>
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}
+
+{% if paginator.total_pages > 1 %}
+  {% include post-paginator.html %}
+{% endif %}

@@ -1,0 +1,200 @@
+/* 终端窗口组件：404 彩蛋页 + 关于页档案卡 */
+
+/* ---- 通用终端窗体 chrome ---- */
+.dfs-term {
+  border: 1px solid var(--dfs-hairline);
+  border-radius: var(--dfs-r-md);
+  background: var(--dfs-bg-1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  font-family: var(--dfs-font-mono);
+}
+
+.dfs-term-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.9rem;
+  background: var(--dfs-bg-2);
+  border-bottom: 1px solid var(--dfs-hairline);
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--dfs-acc);
+    outline-offset: -2px;
+  }
+}
+
+.dfs-term-dots {
+  display: inline-flex;
+  gap: 0.4rem;
+
+  i {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: var(--dfs-ink-muted);
+    opacity: 0.5;
+
+    &:first-child {
+      background: #e06c5b;
+      opacity: 0.8;
+    }
+
+    &:nth-child(2) {
+      background: #e0b84c;
+      opacity: 0.8;
+    }
+
+    &:nth-child(3) {
+      background: var(--dfs-acc);
+      opacity: 0.8;
+    }
+  }
+}
+
+.dfs-term-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--dfs-ink-muted);
+}
+
+.dfs-term-body {
+  padding: 1rem 1.1rem 1.1rem;
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+
+/* ---- 404 页 ---- */
+.dfs-404 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+  padding: clamp(1.5rem, 6vh, 4rem) 0;
+
+  .dfs-term {
+    width: min(100%, 640px);
+    will-change: transform;
+  }
+
+  .dfs-term-out {
+    display: block;
+    min-height: 12rem;
+    max-height: 46vh;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--dfs-ink);
+
+    .dfs-term-banner {
+      color: var(--dfs-acc);
+    }
+
+    .dfs-term-echo {
+      color: var(--dfs-ink-muted);
+    }
+
+    .dfs-term-err {
+      color: var(--dfs-amber);
+    }
+
+    .dfs-term-acc {
+      color: var(--dfs-acc);
+    }
+  }
+
+  .dfs-term-input-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    border-top: 1px solid var(--dfs-hairline);
+    padding-top: 0.7rem;
+  }
+
+  .dfs-term-prompt {
+    color: var(--dfs-acc);
+    white-space: nowrap;
+  }
+
+  .dfs-term-in {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--dfs-ink-strong);
+    font-family: var(--dfs-font-mono);
+    font-size: 0.86rem;
+    caret-color: var(--dfs-acc);
+  }
+
+  .dfs-404-hint {
+    margin: 0;
+  }
+}
+
+/* ---- 关于页：终端档案卡 ---- */
+.dfs-about-terminal {
+  border: 1px solid var(--dfs-hairline);
+  border-radius: var(--dfs-r-md);
+  background: var(--dfs-bg-1);
+  overflow: hidden;
+  margin-top: 1rem;
+
+  .dfs-term-bar {
+    font-family: var(--dfs-font-mono);
+  }
+
+  .dfs-about-inner {
+    padding: 1.4rem clamp(1.1rem, 4vw, 2.2rem) 1.8rem;
+
+    /* 首行提示符 */
+    .dfs-about-cmd {
+      font-family: var(--dfs-font-mono);
+      font-size: 0.85rem;
+      color: var(--dfs-ink-muted);
+      margin-bottom: 1.4rem;
+
+      &::before {
+        content: '$ ';
+        color: var(--dfs-acc);
+      }
+    }
+
+    h1:first-of-type {
+      margin-top: 0;
+    }
+
+    h2 {
+      font-family: var(--dfs-font-sans);
+      font-size: 1.25rem;
+      margin-top: 2rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--dfs-hairline);
+    }
+
+    /* 技能/装备行 mono 化 */
+    ul li code,
+    strong {
+      font-family: var(--dfs-font-mono);
+    }
+
+    blockquote {
+      border-left: 2px solid var(--dfs-acc);
+      background: var(--dfs-acc-ghost);
+      border-radius: 0 var(--dfs-r-sm) var(--dfs-r-sm) 0;
+      padding: 0.7rem 1.1rem;
+      font-style: italic;
+    }
+  }
+}
+
+/* 关于页隐藏重复的 dynamic-title（终端卡内已有 # 关于我） */
+body.dfs-about-page h1.dynamic-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}

@@ -1,0 +1,179 @@
+/* 既有站点自定义样式迁移（原位于 assets/css/jekyll-theme-chirpy.scss 尾部）
+ * 保留：访客统计布局 / details-block 折叠组件（含 😼/🙀 彩蛋）/ 友链卡片 / icon-loading1
+ * 退役：50 圆圈背景动画（由 #dfs-ambient + 粒子 hero 取代）、侧栏背景图（HUD 左轨取代）
+ * 颜色全部走 Chirpy 变量，自动吃新色板。
+ */
+
+/* ---- 访客统计（不蒜子）容器 ---- */
+#visitor-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+}
+
+.visitor-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---- 旋转图标工具类 ---- */
+@keyframes infirot {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.icon-loading1 {
+  display: inline-block;
+  animation: infirot 1s linear infinite;
+}
+
+/* ---- 页面标签展开（details-block） ---- */
+details.details-block {
+  border-radius: var(--dfs-r-sm, 0.25rem);
+  border-left: 0.2rem solid var(--dfs-acc);
+  box-shadow: var(--language-border-color) 1px 1px 2px 1px;
+  margin-bottom: 1rem;
+  padding: 0.6rem 1rem 0.6rem 1.5rem;
+
+  > p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+details.details-block > summary {
+  padding: 0.5rem 1rem;
+  margin: -0.6rem -1rem -0.6rem -1.5rem;
+  font-weight: 600;
+  background-color: var(--dfs-acc-ghost);
+  color: var(--dfs-ink-strong); /* AA on 深色 accent-ghost 底 */
+  text-decoration: underline;
+  position: relative;
+  list-style: none;
+}
+
+details.details-block > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.details-block > summary::marker {
+  content: none;
+}
+
+details.details-block > summary::before {
+  content: '😼';
+  margin-right: 0.5rem;
+  display: inline-block;
+}
+
+details.details-block[open] > summary::before {
+  content: '🙀';
+  animation: my-cat 0.2s ease-in-out;
+  margin-right: 0.5rem;
+}
+
+details.details-block > summary::after {
+  font-family: 'Font Awesome 6 Free';
+  content: '\f105';
+  display: inline-block;
+  transition: transform 0.2s ease;
+  position: absolute;
+  right: 1rem;
+}
+
+details.details-block[open] > summary::after {
+  transform: rotate(90deg);
+}
+
+details.details-block[open] > summary {
+  margin-bottom: 0.6rem;
+}
+
+@keyframes my-cat {
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* ---- 友链页（bento 卡片语言） ---- */
+.friends-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 992px) {
+  .friends-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .friends-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.friend-card-item {
+  background-color: var(--card-bg);
+  border-radius: var(--dfs-r-lg, 12px);
+  border: 1px solid var(--main-border-color);
+  overflow: hidden;
+  contain: layout paint;
+  transition:
+    border-color var(--dfs-t-micro, 0.2s) ease,
+    box-shadow var(--dfs-t-micro, 0.2s) ease;
+}
+
+.friend-card-item:hover {
+  border-color: var(--dfs-acc-glow, var(--main-border-color));
+  box-shadow: 0 0 24px var(--dfs-acc-ghost, rgba(0, 0, 0, 0.15));
+}
+
+.friend-card-link {
+  display: block;
+  text-decoration: none;
+  color: var(--text-color);
+}
+
+.friend-card-img-wrapper {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+}
+
+.friend-card-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.friend-card-item:hover .friend-card-avatar {
+  transform: scale(1.05);
+}
+
+.friend-card-info {
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.friend-card-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.friend-card-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted-color);
+  line-height: 1.5;
+}

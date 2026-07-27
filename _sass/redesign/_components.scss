@@ -1,0 +1,159 @@
+/* 通用组件：发光按钮 / 磁性基座 / 自定义光标 / 阅读进度条 / scramble 层 */
+
+/* 发光按钮（hashgraph 语言：1px 描边 + blur 光晕 + shimmer 扫光） */
+.dfs-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.4rem;
+  font-family: var(--dfs-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: var(--dfs-acc);
+  background: transparent;
+  border: 1px solid var(--dfs-acc-glow);
+  border-radius: var(--dfs-r-sm);
+  text-decoration: none;
+  overflow: hidden;
+  transition:
+    color var(--dfs-t-micro) var(--dfs-ease-out),
+    border-color var(--dfs-t-micro) var(--dfs-ease-out),
+    box-shadow var(--dfs-t-micro) var(--dfs-ease-out);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    bottom: -50%;
+    left: -20%;
+    width: 40px;
+    background: var(--shimmer-bg);
+    transform: rotate(20deg) translateX(-120px);
+    animation: dfs-shimmer 5s var(--dfs-ease-out) infinite;
+    pointer-events: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--dfs-ink-strong);
+    border-color: var(--dfs-acc);
+    box-shadow:
+      0 0 18px var(--dfs-acc-ghost),
+      inset 0 0 18px var(--dfs-acc-ghost);
+  }
+}
+
+@keyframes dfs-shimmer {
+  0%,
+  70% {
+    transform: rotate(20deg) translateX(-120px);
+  }
+
+  100% {
+    transform: rotate(20deg) translateX(min(28vw, 340px));
+  }
+}
+
+/* 磁性按钮基座（位移由 JS quickTo 驱动，此处只保证可布局） */
+[data-magnetic] {
+  display: inline-block;
+  will-change: auto;
+}
+
+/* 自定义光标（桌面 fine pointer + 非 PRM 时由 site.js 挂载）
+ * 双元素：实心点即时跟随（精度）+ 描边环滞后缓动（性格）。
+ * 终端质感：hover 时点隐、环放大并变方角（选框/瞄准框）。
+ * 近黑底上不用 mix-blend-mode（difference 对黑底几乎不反相 → 发暗）。
+ * 定位走 translate（JS 每帧写），transform 留给 scale。 */
+#dfs-cursor,
+#dfs-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: var(--dfs-z-cursor);
+  opacity: 0;
+  will-change: transform;
+}
+
+/* 点：小、实心、即时 */
+#dfs-cursor {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--dfs-acc);
+  transform: scale(1);
+  transition:
+    opacity 0.2s var(--dfs-ease-out),
+    transform 0.25s var(--dfs-ease-out);
+
+  &.is-live {
+    opacity: 1;
+  }
+
+  &.is-live.is-hover {
+    transform: scale(0); /* 点隐，交给环 */
+  }
+}
+
+/* 环：大、描边、滞后跟随；hover 放大成方角选框 */
+#dfs-cursor-ring {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1.5px solid var(--dfs-acc-glow);
+  border-radius: 50%;
+  transform: scale(1);
+  transition:
+    opacity 0.2s var(--dfs-ease-out),
+    transform 0.3s var(--dfs-ease-out),
+    border-color 0.2s var(--dfs-ease-out),
+    border-radius 0.2s var(--dfs-ease-out);
+
+  &.is-live {
+    opacity: 0.9;
+  }
+
+  &.is-live.is-hover {
+    transform: scale(1.7);
+    border-color: var(--dfs-acc);
+    border-radius: 6px; /* 终端选框质感 */
+  }
+}
+
+/* cursor:none 用 * 级联覆盖动态元素与 UA 默认（否则点标签等跳转后
+   新元素/链接会露出系统箭头） */
+html.dfs-cursor-on,
+html.dfs-cursor-on * {
+  cursor: none !important;
+}
+
+/* 阅读进度条（文章页, site.js 注入） */
+#dfs-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--dfs-acc);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  z-index: var(--dfs-z-progress);
+  pointer-events: none;
+}
+
+/* scramble 解码：动画层 aria-hidden，真实文本静态存在（读屏/查找不受影响） */
+.dfs-scramble {
+  position: relative;
+
+  .dfs-scramble-anim {
+    position: absolute;
+    inset: 0;
+  }
+
+  &.is-scrambling > :not(.dfs-scramble-anim) {
+    visibility: hidden;
+  }
+}

@@ -1,0 +1,439 @@
+/* 文章页（L3 · 安静的阅读）：排印即设计，零叙事动效
+ * post.html 不覆盖（保护加密文章管线与 TOC 契约），全部换肤经 CSS 作用于
+ * gem 的既有 DOM：article header / .content / .post-tail-wrapper /
+ * #toc-wrapper / .code-header / .post-navigation / #related-posts。
+ */
+
+/* ---- 文章头 ---- */
+main article > header {
+  /* 一次淡入：opacity 从 0.35 起（首帧即绘制，不劫持 LCP），正文零动效 */
+  @media (prefers-reduced-motion: no-preference) {
+    html.js & {
+      animation: dfs-post-head-in 0.5s var(--dfs-ease-out) both;
+    }
+  }
+
+  h1 {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
+  .post-desc {
+    color: var(--dfs-ink-muted);
+    border-left: 2px solid var(--dfs-acc);
+    padding-left: 0.8rem;
+  }
+
+  .post-meta {
+    font-family: var(--dfs-font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+
+    em {
+      font-style: normal;
+    }
+  }
+}
+
+@keyframes dfs-post-head-in {
+  from {
+    opacity: 0.35;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- 正文排印 ---- */
+main article .content {
+  max-width: 42em; /* 内容字号 1.08rem 下 ≈ 38-40 汉字/行 */
+  font-size: 1.08rem;
+  line-height: 1.85;
+  letter-spacing: 0.015em;
+
+  p {
+    margin-bottom: 1.3rem;
+  }
+
+  /* h2 mono 编号（与首页 //01 章节语言呼应）；计数器与锚点图标共存 */
+  counter-reset: dfs-h2;
+
+  h2 {
+    counter-increment: dfs-h2;
+    margin-top: 3rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--dfs-hairline);
+
+    &::before {
+      content: counter(dfs-h2, decimal-leading-zero) '.';
+      font-family: var(--dfs-font-mono);
+      font-size: 0.75em;
+      font-weight: 400;
+      color: var(--dfs-acc);
+      margin-right: 0.6rem;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  h3 {
+    margin-top: 2.2rem;
+  }
+
+  /* 引用块 */
+  blockquote {
+    border-left: 2px solid var(--dfs-acc);
+    background: var(--dfs-acc-ghost);
+    border-radius: 0 var(--dfs-r-sm) var(--dfs-r-sm) 0;
+    padding: 0.8rem 1.2rem;
+
+    &.prompt-tip,
+    &.prompt-info,
+    &.prompt-warning,
+    &.prompt-danger {
+      background: var(--prompt-tip-bg, var(--dfs-acc-ghost));
+      border-radius: var(--dfs-r-sm);
+    }
+  }
+
+  /* 表格 */
+  .table-wrapper {
+    border: 1px solid var(--dfs-hairline);
+    border-radius: var(--dfs-r-sm);
+
+    > table tbody tr {
+      border-color: var(--dfs-hairline);
+    }
+  }
+
+  /* 图片：hairline 相框；带 width/height（插件注入）时保留响应式比例 → 零 CLS */
+  img:not(.emoji):not(.no-bg) {
+    border-radius: var(--dfs-r-sm);
+    border: 1px solid var(--dfs-hairline);
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* 行内代码 */
+  p > code,
+  li > code,
+  td > code {
+    font-size: 0.85em;
+    padding: 0.15em 0.45em;
+    border-radius: 4px;
+    border: 1px solid var(--dfs-hairline);
+  }
+}
+
+/* ==== 代码块：Mac 终端窗口 + 点击折叠 ====
+ * .code-header 由 Chirpy refactor-content 注入（含复制按钮，契约不动）；
+ * site.js 增强为交通灯标题栏，并把 .highlight 包进 grid 折叠结构。
+ * 未启用 JS 时退化为普通代码块（无折叠，样式仍在）。 */
+main article {
+  /* 窗体外壳 */
+  .highlighter-rouge {
+    border: 1px solid var(--dfs-hairline);
+    border-radius: var(--dfs-r-md);
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    background: var(--dfs-bg-2);
+  }
+
+  /* 标题栏 */
+  .code-header {
+    font-family: var(--dfs-font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    height: 2.5rem;
+    padding: 0 0.9rem;
+    background: linear-gradient(180deg, var(--dfs-bg-3), var(--dfs-bg-2));
+    border: 0;
+    border-bottom: 1px solid var(--dfs-hairline);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04); /* 顶边高光 */
+    border-radius: 0;
+
+    /* 交通灯 */
+    .dfs-code-lights {
+      display: inline-flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+
+      i {
+        width: 0.72rem;
+        height: 0.72rem;
+        border-radius: 50%;
+        border: 0.5px solid rgba(0, 0, 0, 0.25);
+
+        &:nth-child(1) {
+          background: #ed6a5f;
+        }
+
+        &:nth-child(2) {
+          background: #f6be50;
+        }
+
+        &:nth-child(3) {
+          background: #61c555;
+        }
+      }
+    }
+
+    /* 折叠 chevron（默认收起指向右，展开旋转 90°） */
+    .dfs-code-chevron {
+      font-size: 1rem;
+      line-height: 1;
+      color: var(--dfs-ink-muted);
+      transition: transform 0.3s var(--dfs-ease-out);
+      transform: rotate(0deg);
+      flex-shrink: 0;
+    }
+
+    /* 行数徽标：靠右、复制按钮左侧（order 排布，复制永远最右） */
+    .dfs-code-lines {
+      order: 5;
+      margin-left: auto;
+      margin-right: 0.6rem;
+      color: var(--dfs-ink-muted);
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+
+    /* 复制按钮永远最右 */
+    button {
+      order: 6;
+    }
+
+    /* 语言标签保持原位（Chirpy 的 span[data-label-text]） */
+    span[data-label-text] {
+      order: 2;
+      margin-left: 0.2rem;
+
+      &::after {
+        content: attr(data-label-text);
+        color: var(--dfs-ink-muted);
+      }
+    }
+  }
+
+  /* 标题栏可点折叠 */
+  .dfs-code-toggle {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover .dfs-code-chevron {
+      color: var(--dfs-acc);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--dfs-acc);
+      outline-offset: -2px;
+    }
+  }
+
+  /* grid 折叠体：0fr→1fr，平滑到自然高度 */
+  .dfs-code-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s var(--dfs-ease-out);
+  }
+
+  .dfs-code-inner {
+    overflow: hidden;
+    min-height: 0; /* 关键：否则 grid 子项不肯收到 0 */
+  }
+
+  /* 展开态 */
+  .dfs-code-open {
+    .dfs-code-body {
+      grid-template-rows: 1fr;
+    }
+
+    .dfs-code-chevron {
+      transform: rotate(90deg);
+    }
+  }
+
+  /* .highlight 自身：去掉独立边框圆角（外壳已接管），保留横向滚动 */
+  .highlight {
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  div.highlighter-rouge .highlight {
+    max-height: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main article .dfs-code-body,
+  main article .dfs-code-chevron {
+    transition: none;
+  }
+}
+
+/* ---- 文尾（分类/标签/许可/分享） ---- */
+.post-tail-wrapper {
+  border-top: 1px solid var(--dfs-hairline);
+  font-family: var(--dfs-font-mono);
+  font-size: 0.82rem;
+
+  .post-tags .post-tag {
+    border: 1px solid var(--tag-border);
+    border-radius: var(--dfs-r-sm);
+    background: transparent;
+    transition:
+      color var(--dfs-t-micro) var(--dfs-ease-out),
+      border-color var(--dfs-t-micro) var(--dfs-ease-out);
+
+    &::before {
+      content: '# ';
+      color: var(--dfs-ink-muted);
+    }
+
+    &:hover {
+      color: var(--dfs-acc);
+      border-color: var(--dfs-acc);
+    }
+  }
+}
+
+/* ---- 上下篇导航：终端风 ---- */
+.post-navigation {
+  gap: 1rem;
+
+  .btn {
+    border: 1px solid var(--dfs-hairline);
+    border-radius: var(--dfs-r-sm);
+    background: var(--card-bg);
+    color: var(--dfs-ink);
+    text-align: left;
+    transition:
+      border-color var(--dfs-t-micro) var(--dfs-ease-out),
+      box-shadow var(--dfs-t-micro) var(--dfs-ease-out);
+
+    p {
+      font-size: 0.9rem;
+
+      &::before {
+        display: block;
+        font-family: var(--dfs-font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.15em;
+        color: var(--dfs-ink-muted);
+        margin-bottom: 0.3rem;
+      }
+    }
+
+    &:first-child p::before {
+      content: '← PREV';
+    }
+
+    &:last-child p::before {
+      content: 'NEXT →';
+    }
+
+    &:hover:not(.disabled) {
+      border-color: var(--dfs-acc);
+      box-shadow: 0 0 16px var(--dfs-acc-ghost);
+      color: var(--dfs-acc);
+      background: var(--card-bg);
+    }
+
+    &.disabled {
+      opacity: 0.35;
+    }
+  }
+}
+
+/* ---- 相关文章 ---- */
+#related-posts {
+  h3 {
+    font-family: var(--dfs-font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--dfs-ink-muted);
+
+    &::before {
+      content: '// ';
+      color: var(--dfs-acc);
+    }
+  }
+
+  .card {
+    border: 1px solid var(--dfs-hairline);
+    border-radius: var(--dfs-r-md);
+    background: var(--card-bg);
+    box-shadow: none;
+    transition:
+      border-color var(--dfs-t-micro) var(--dfs-ease-out),
+      box-shadow var(--dfs-t-micro) var(--dfs-ease-out);
+
+    &:hover {
+      border-color: var(--dfs-acc-glow);
+      box-shadow: 0 0 20px var(--dfs-acc-ghost);
+    }
+  }
+}
+
+/* ---- TOC（tocbot 契约不动，仅换肤） ---- */
+#toc-wrapper {
+  .panel-heading {
+    font-family: var(--dfs-font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--dfs-ink-muted);
+
+    &::before {
+      content: '// ';
+      color: var(--dfs-acc);
+    }
+  }
+
+  .toc-link {
+    font-size: 0.82rem;
+
+    &::before {
+      background: var(--dfs-acc);
+    }
+  }
+
+  .is-active-link {
+    color: var(--dfs-acc) !important;
+  }
+}
+
+/* 移动端 TOC 弹层 */
+#toc-bar {
+  border-bottom: 1px solid var(--dfs-hairline);
+  backdrop-filter: blur(8px);
+
+  .label {
+    font-family: var(--dfs-font-mono);
+    font-size: 0.8rem;
+  }
+}
+
+#toc-popup {
+  border: 1px solid var(--dfs-hairline);
+  border-radius: var(--dfs-r-md);
+  background: var(--dfs-bg-1);
+
+  .header {
+    background: var(--dfs-bg-2);
+    border-bottom: 1px solid var(--dfs-hairline);
+
+    .label {
+      font-family: var(--dfs-font-mono);
+    }
+  }
+}
+
+/* ---- 加密文章解锁卡（encrypt_posts.py 注入的 DOM，变量自动换肤补强） ---- */
+.decrypt-card {
+  font-family: var(--dfs-font-mono);
+}

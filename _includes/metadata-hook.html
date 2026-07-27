@@ -1,0 +1,20 @@
+<!-- 基于 Chirpy 7.3.1 的官方空 hook（_includes/metadata-hook.html）。
+  改动：注入 html.js 类（动效初态的双重门之一）+ 展示字体 preload。
+  还原：清空本文件即可。 -->
+<script>
+  document.documentElement.classList.add('js');
+</script>
+<link
+  rel="preload"
+  as="font"
+  type="font/woff2"
+  href="{{ '/assets/fonts/dfs-mono.woff2' | relative_url }}"
+  crossorigin
+>
+<link
+  rel="preload"
+  as="font"
+  type="font/woff2"
+  href="{{ '/assets/fonts/dfs-grotesk.woff2' | relative_url }}"
+  crossorigin
+>

@@ -1,0 +1,161 @@
+/* 列表页（L2 · 秩序）：归档时间轴 / 分类 / 标签 / 搜索结果 / 通用 page
+ * 全部作用于 gem 布局的既有 DOM（#archives / .card.categories / #tags），
+ * 入场 stagger 由 site.js 对视口外列表项注入 data-reveal（无 JS 时零影响）。
+ */
+
+/* ---- 通用 page 标题（topbar 面包屑之外的页内大标题由 dynamic-title 渲染） ---- */
+main > .row h1.dynamic-title,
+main h1.dynamic-title {
+  font-family: var(--dfs-font-sans);
+  letter-spacing: 0.06em;
+}
+
+/* ---- 归档：时间轴 ---- */
+#archives {
+  /* 年份：超大 mono 数字（背景层化 + site.js 轻视差） */
+  time.year {
+    position: relative;
+    display: block;
+    font-family: var(--dfs-font-mono);
+    font-size: clamp(3.4rem, 9vw, 6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--dfs-ink-muted);
+    opacity: 0.55;
+    margin: 2.2rem 0 0.6rem;
+    user-select: none;
+    will-change: transform;
+
+    &::after {
+      /* 覆盖 gem 原有下划线装饰 */
+      content: none !important;
+    }
+  }
+
+  /* 时间轴主线与节点走主题变量（_themes 已覆写），此处仅微调 */
+  li {
+    a {
+      font-size: 1rem;
+    }
+
+    .date {
+      font-family: var(--dfs-font-mono);
+      font-variant-numeric: tabular-nums;
+
+      &.month {
+        color: var(--dfs-ink-muted);
+      }
+    }
+  }
+}
+
+/* ---- 分类页：bento 卡语言 ---- */
+.card.categories {
+  border: 1px solid var(--dfs-hairline);
+  border-radius: var(--dfs-r-md);
+  background: var(--card-bg);
+  box-shadow: none;
+  overflow: hidden;
+  transition:
+    border-color var(--dfs-t-micro) var(--dfs-ease-out),
+    box-shadow var(--dfs-t-micro) var(--dfs-ease-out);
+
+  &:hover {
+    border-color: var(--dfs-acc-glow);
+    box-shadow: 0 0 20px var(--dfs-acc-ghost);
+  }
+
+  .card-header {
+    background: transparent;
+
+    a {
+      font-weight: 600;
+    }
+
+    .text-muted {
+      font-family: var(--dfs-font-mono);
+      font-size: 0.72rem !important;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  i.far,
+  i.fas {
+    color: var(--dfs-acc);
+  }
+
+  .list-group-item {
+    border-color: var(--dfs-hairline);
+
+    > a {
+      font-size: 0.92rem;
+    }
+
+    .text-muted {
+      font-family: var(--dfs-font-mono);
+      font-size: 0.72rem !important;
+    }
+  }
+}
+
+/* ---- 标签页 + 全站 .post-tag：方括号 mono 标签 ---- */
+#tags .tag,
+.post-tag {
+  font-family: var(--dfs-font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  border: 1px solid var(--tag-border);
+  border-radius: var(--dfs-r-sm);
+  box-shadow: none;
+
+  span.text-muted {
+    font-size: 0.7rem;
+    margin-left: 0.3rem;
+  }
+
+  &:hover {
+    background: var(--dfs-acc-ghost);
+    border-color: var(--dfs-acc);
+    color: var(--dfs-acc);
+    box-shadow: none;
+  }
+}
+
+/* ---- 分类/标签详情页（category/tag 布局）文章列表 ---- */
+#page-category,
+#page-tag {
+  ul > li {
+    border-bottom: 1px solid var(--dfs-hairline);
+
+    > a {
+      font-size: 1rem;
+    }
+
+    .text-muted {
+      font-family: var(--dfs-font-mono);
+      font-size: 0.75rem;
+    }
+  }
+
+  h1 > i {
+    color: var(--dfs-acc);
+  }
+}
+
+/* ---- 搜索结果 ---- */
+#search-results {
+  .post-tag {
+    font-size: 0.72rem;
+  }
+
+  article h2 {
+    font-size: 1.1rem;
+  }
+}
+
+/* ---- 关于页基础排印（阶段五做终端档案卡） ---- */
+.page-about,
+#about-wrapper {
+  line-height: 1.9;
+}

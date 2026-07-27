@@ -1,0 +1,177 @@
+/* 全站基底：字体应用 / 氛围背景 / 选区 / 链接 / 滚动条 */
+
+html {
+  background: var(--main-bg);
+}
+
+/* body 背景必须透明：#dfs-ambient 是 body 的 z-index:-1 子元素，而按 CSS
+   绘制顺序（CSS 2.1 附录 E）负 z-index 后代排在根背景之后、但在普通流内容
+   之前 —— body 自身的背景属于后者，不透明时会整片盖住氛围层。
+   底色由上面 html{background} 提供（会传播到 canvas），观感不变。 */
+body {
+  background: transparent;
+}
+
+/* 兜底：根级裁掉一切横向溢出，杜绝底部出现横向滚动条。
+   用 clip 而非 hidden —— hidden 会让根成为滚动容器并破坏 position:sticky；
+   clip 只裁剪、不创建滚动容器。与既有 html{overflow-y:scroll} 组合合法。
+   动因：.dfs-chapter 里的 ghost 大数字（right:-0.05em + font-size:28vw）
+   本就越界（1440 视口下右边缘 1457.6），目前仅靠章节自身的 overflow-x:clip
+   兜住；缩放 / 分数 DPR / ghost 上的 GSAP 视差变换都可能让它漏到视口。 */
+html {
+  overflow-x: clip;
+}
+
+/* Lenis 激活时中和 Bootstrap 的 :root{scroll-behavior:smooth}（否则程序化滚动双重动画） */
+html.lenis,
+html.lenis body {
+  scroll-behavior: auto !important;
+}
+
+body {
+  font-family: var(--dfs-font-sans);
+  letter-spacing: 0.01em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--dfs-font-sans);
+  letter-spacing: 0.005em;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--dfs-font-mono);
+}
+
+::selection {
+  background: var(--dfs-selection-bg);
+  color: var(--dfs-ink-strong);
+}
+
+/* 等宽工具类 + 数字不抖 */
+.dfs-mono {
+  font-family: var(--dfs-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 视觉隐藏（读屏可达）：滚动数字/打字机的静态可访问文本 */
+.dfs-vh {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- 氛围背景（_includes/animated-background.html, 全站, 纯静态纹理） ---- */
+#dfs-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1; /* 置于 body 背景与内容之间，不与 Chirpy 侧栏/遮罩层级互动 */
+
+  .dfs-ambient-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        var(--dfs-grid-line) 0,
+        var(--dfs-grid-line) 1px,
+        transparent 1px,
+        transparent 48px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        var(--dfs-grid-line) 0,
+        var(--dfs-grid-line) 1px,
+        transparent 1px,
+        transparent 48px
+      );
+  }
+
+  .dfs-ambient-noise {
+    position: absolute;
+    inset: 0;
+    background-image: url('../img/redesign/noise.png');
+    background-repeat: repeat;
+    opacity: var(--dfs-noise-opacity);
+  }
+}
+
+/* 省流/触屏降载：关噪点层 */
+@media (pointer: coarse) {
+  #dfs-ambient .dfs-ambient-noise {
+    display: none;
+  }
+}
+
+/* 链接下划线滑入（全站统一微交互） */
+main a:not(.btn):not(.card):not(.post-preview):not(.nav-link):not(.dfs-plain) {
+  text-decoration: none;
+  background-image: linear-gradient(var(--dfs-acc), var(--dfs-acc));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0 1px;
+  transition: background-size var(--dfs-t-micro) var(--dfs-ease-out);
+
+  &:hover,
+  &:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+/* 焦点样式与 hover 同级设计 */
+:focus-visible {
+  outline: 2px solid var(--dfs-acc);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 滚动条：细 terminal 风（Firefox + WebKit） */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--dfs-bg-3) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dfs-bg-3);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--dfs-acc);
+  }
+}
+
+/* 拖动滚动条时：恢复系统光标、隐藏自定义光标（原生滚动条拖动会吞
+   pointermove，自定义光标会冻结；此时回退系统光标才有正常反馈）。
+   双类选择器 (0,2,1) 压过 components 里 dfs-cursor-on 的 cursor:none (0,1,1)。 */
+html.dfs-cursor-on.dfs-dragging-scroll,
+html.dfs-cursor-on.dfs-dragging-scroll * {
+  cursor: auto !important;
+}
+
+html.dfs-dragging-scroll #dfs-cursor,
+html.dfs-dragging-scroll #dfs-cursor-ring {
+  opacity: 0 !important;
+}

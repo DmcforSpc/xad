@@ -1,0 +1,63 @@
+/* 动效初态与降级铁律
+ *
+ * 初态只写在 html.js + prefers-reduced-motion: no-preference 双重门内：
+ *  - 无 JS 用户：html 无 .js 类 → 天然见终态，零内容失踪
+ *  - PRM 用户：媒体查询不命中 → 天然见终态
+ *  - LCP 元素（hero 站名/副标题）不在任何初态选择器内，首帧即绘制
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.js {
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(24px);
+      transition:
+        opacity var(--dfs-t-enter) var(--dfs-ease-out),
+        transform var(--dfs-t-enter) var(--dfs-ease-out);
+      transition-delay: calc(var(--i, 0) * 65ms);
+
+      &.is-in {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* 行遮罩 reveal（仅非 LCP 元素） */
+    [data-reveal='mask'] {
+      transform: none;
+      clip-path: inset(0 0 100% 0);
+      transition:
+        opacity var(--dfs-t-enter-slow) var(--dfs-ease-out),
+        clip-path var(--dfs-t-enter-slow) var(--dfs-ease-out);
+
+      &.is-in {
+        clip-path: inset(0 0 -20% 0);
+      }
+    }
+  }
+
+  /* 触屏：上折叠区 stagger 塌缩为单次淡入（transform 归零，仅透明度） */
+  @media (pointer: coarse) {
+    html.js [data-reveal] {
+      transform: none;
+      transition-delay: 0ms;
+    }
+  }
+}
+
+/* PRM 下叫停一切装饰动画（shimmer / 光标闪烁 / 滚动虚线） */
+@media (prefers-reduced-motion: reduce) {
+  .dfs-btn::before,
+  .dfs-scroll-hint .dfs-scroll-line,
+  .dfs-caret,
+  #sidebar .site-title::after {
+    animation: none !important;
+  }
+
+  .dfs-scroll-hint .dfs-scroll-line {
+    clip-path: none;
+  }
+
+  #dfs-cursor {
+    display: none !important;
+  }
+}

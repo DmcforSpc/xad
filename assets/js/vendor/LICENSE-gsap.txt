@@ -1,0 +1,6 @@
+GSAP 3.13.0 & ScrollTrigger 3.13.0
+(c) Webflow, Inc. / GreenSock
+Distributed under the GSAP Standard License ("no charge" license):
+https://gsap.com/standard-license/
+Free for commercial and personal use. Not OSI open source; see link for terms.
+Vendored unmodified from the official npm distribution (gsap@3.13.0/dist/).
