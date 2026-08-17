@@ -271,128 +271,10 @@
     yearEls = null;
   }
 
-  /* ---- 自定义光标（桌面 fine pointer + motionOK） ---- */
-  var cursorEl = null;
-  var ringEl = null;
-  var cursorRaf = null;
-  var cursorLive = false;
-  var cx = 0; // 点
-  var cy = 0;
-  var rx = 0; // 环
-  var ry = 0;
-  var tx = 0; // 目标
-  var ty = 0;
-  var HOVER_SEL = 'a, button, [role="button"], input, label, summary';
-
-  function cursorLoop() {
-    cx += (tx - cx) * 0.4; // 点：近即时
-    cy += (ty - cy) * 0.4;
-    rx += (tx - rx) * 0.15; // 环：滞后跟随
-    ry += (ty - ry) * 0.15;
-    cursorEl.style.translate = cx.toFixed(1) + 'px ' + cy.toFixed(1) + 'px';
-    ringEl.style.translate = rx.toFixed(1) + 'px ' + ry.toFixed(1) + 'px';
-    cursorRaf = requestAnimationFrame(cursorLoop);
-  }
-
-  function onCursorMove(e) {
-    tx = e.clientX;
-    ty = e.clientY;
-    /* 首次出现（含跳转后的新页面）：点与环都直接落在指针处再淡入，
-       不从初始坐标插值飞过来 */
-    if (!cursorLive) {
-      cursorLive = true;
-      cx = rx = tx;
-      cy = ry = ty;
-      cursorEl.style.translate = cx + 'px ' + cy + 'px';
-      ringEl.style.translate = rx + 'px ' + ry + 'px';
-      cursorEl.classList.add('is-live');
-      ringEl.classList.add('is-live');
-    }
-  }
-
-  /* 拖图片/链接会触发浏览器原生拖放，期间 pointermove 停发、光标冻结。
-     自定义光标下这类拖放无意义 —— 直接拦截 dragstart，任何拖动都退化为
-     文字选择（pointermove 正常派发，光标正常跟随）。 */
-  function blockNativeDrag(e) {
-    e.preventDefault();
-  }
-
-  /* 按在原生滚动条上（offset 超出内容盒 = 落在滚动条区域）→ 拖动期间
-     恢复系统光标；松开复原。解决拖横向滚动条时自定义光标冻结无反馈。 */
-  function onCursorDown(e) {
-    var t = e.target;
-    if (
-      t &&
-      t.nodeType === 1 &&
-      (e.offsetX > t.clientWidth || e.offsetY > t.clientHeight)
-    ) {
-      document.documentElement.classList.add('dfs-dragging-scroll');
-    }
-  }
-
-  function onCursorUp() {
-    document.documentElement.classList.remove('dfs-dragging-scroll');
-  }
-
-  /* 指针离开窗口：隐藏并复位，重新进入时同样直接落点 */
-  function onCursorLeaveDoc(e) {
-    if (!e.relatedTarget && cursorEl) {
-      cursorLive = false;
-      cursorEl.classList.remove('is-live', 'is-hover');
-      ringEl.classList.remove('is-live', 'is-hover');
-    }
-  }
-
-  /* 单一 pointerover 按当前目标定态：相邻交互元素间移动时类保持不变，
-     过渡不重启 → 无「移除→重加」的闪跳 */
-  function onCursorOver(e) {
-    var hovering = !!(e.target.closest && e.target.closest(HOVER_SEL));
-    cursorEl.classList.toggle('is-hover', hovering);
-    ringEl.classList.toggle('is-hover', hovering);
-  }
-
-  function setupCursor() {
-    if (!finePointer || !motionOK()) return;
-    cursorEl = document.createElement('div');
-    cursorEl.id = 'dfs-cursor';
-    cursorEl.setAttribute('aria-hidden', 'true');
-    ringEl = document.createElement('div');
-    ringEl.id = 'dfs-cursor-ring';
-    ringEl.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(cursorEl);
-    document.body.appendChild(ringEl);
-    document.documentElement.classList.add('dfs-cursor-on');
-    window.addEventListener('pointermove', onCursorMove, { passive: true });
-    document.addEventListener('pointerover', onCursorOver, { passive: true });
-    document.addEventListener('pointerout', onCursorLeaveDoc, { passive: true });
-    document.addEventListener('dragstart', blockNativeDrag);
-    document.addEventListener('pointerdown', onCursorDown, { passive: true });
-    window.addEventListener('pointerup', onCursorUp, { passive: true });
-    cursorRaf = requestAnimationFrame(cursorLoop);
-  }
-
-  function teardownCursor() {
-    if (!cursorEl) return;
-    cancelAnimationFrame(cursorRaf);
-    window.removeEventListener('pointermove', onCursorMove);
-    document.removeEventListener('pointerover', onCursorOver);
-    document.removeEventListener('pointerout', onCursorLeaveDoc);
-    document.removeEventListener('dragstart', blockNativeDrag);
-    document.removeEventListener('pointerdown', onCursorDown);
-    window.removeEventListener('pointerup', onCursorUp);
-    document.documentElement.classList.remove('dfs-dragging-scroll');
-    document.documentElement.classList.remove('dfs-cursor-on');
-    cursorEl.remove();
-    if (ringEl) ringEl.remove();
-    cursorEl = null;
-    ringEl = null;
-  }
-
   /* ---- PRM 运行中切换：实时销毁 ---- */
   reduceMQ.addEventListener('change', function () {
     if (reduceMQ.matches) {
       teardownTilt();
-      teardownCursor();
       teardownYearParallax();
       document.querySelectorAll('[data-reveal]').forEach(function (el) {
         el.classList.add('is-in');
@@ -406,7 +288,6 @@
     setupReveals();
     setupTilt();
     setupProgress();
-    setupCursor();
     setupYearParallax();
     setupCodeBlocks();
   }

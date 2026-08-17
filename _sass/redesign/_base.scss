@@ -117,18 +117,29 @@ samp {
   }
 }
 
-/* 链接下划线滑入（全站统一微交互） */
+/* 链接下划线滑入（全站统一微交互）
+   两层下划线：底层 --link-underline-color 常显（WCAG 1.4.1 非颜色标识——
+   链接色与正文对比 <3:1，触屏无 hover 全靠它辨认）；上层 accent 实线
+   hover/focus 滑入，保留原有微交互。 */
 main a:not(.btn):not(.card):not(.post-preview):not(.nav-link):not(.dfs-plain) {
   text-decoration: none;
-  background-image: linear-gradient(var(--dfs-acc), var(--dfs-acc));
+  background-image:
+    linear-gradient(var(--dfs-acc), var(--dfs-acc)),
+    linear-gradient(var(--link-underline-color), var(--link-underline-color));
   background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 0 1px;
+  background-position:
+    0 100%,
+    0 100%;
+  background-size:
+    0 1px,
+    100% 1px;
   transition: background-size var(--dfs-t-micro) var(--dfs-ease-out);
 
   &:hover,
   &:focus-visible {
-    background-size: 100% 1px;
+    background-size:
+      100% 1px,
+      100% 1px;
   }
 }
 
@@ -161,17 +172,4 @@ main a:not(.btn):not(.card):not(.post-preview):not(.nav-link):not(.dfs-plain) {
   &:hover {
     background: var(--dfs-acc);
   }
-}
-
-/* 拖动滚动条时：恢复系统光标、隐藏自定义光标（原生滚动条拖动会吞
-   pointermove，自定义光标会冻结；此时回退系统光标才有正常反馈）。
-   双类选择器 (0,2,1) 压过 components 里 dfs-cursor-on 的 cursor:none (0,1,1)。 */
-html.dfs-cursor-on.dfs-dragging-scroll,
-html.dfs-cursor-on.dfs-dragging-scroll * {
-  cursor: auto !important;
-}
-
-html.dfs-dragging-scroll #dfs-cursor,
-html.dfs-dragging-scroll #dfs-cursor-ring {
-  opacity: 0 !important;
 }

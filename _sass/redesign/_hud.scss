@@ -116,8 +116,18 @@
 
 /* ---- 顶栏 ---- */
 #topbar-wrapper {
+  -webkit-backdrop-filter: blur(8px); /* Safari ≤17 只认前缀版 */
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--dfs-hairline);
+}
+
+/* 两版都不支持时：半透明底无模糊会与正文叠字，退回不透明 */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  #topbar-wrapper {
+    background: var(--dfs-bg-0);
+  }
 }
 
 #breadcrumb {

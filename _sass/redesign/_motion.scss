@@ -44,20 +44,18 @@
   }
 }
 
-/* PRM 下叫停一切装饰动画（shimmer / 光标闪烁 / 滚动虚线） */
+/* PRM 下叫停一切装饰动画（shimmer / 光标闪烁 / 滚动虚线 / legacy 旋转与彩蛋） */
 @media (prefers-reduced-motion: reduce) {
   .dfs-btn::before,
   .dfs-scroll-hint .dfs-scroll-line,
   .dfs-caret,
-  #sidebar .site-title::after {
+  #sidebar .site-title::after,
+  .icon-loading1,
+  details.details-block[open] > summary::before {
     animation: none !important;
   }
 
   .dfs-scroll-hint .dfs-scroll-line {
     clip-path: none;
-  }
-
-  #dfs-cursor {
-    display: none !important;
   }
 }

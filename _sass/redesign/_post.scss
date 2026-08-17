@@ -410,11 +410,24 @@ main article {
 /* 移动端 TOC 弹层 */
 #toc-bar {
   border-bottom: 1px solid var(--dfs-hairline);
+  /* Chirpy 原底是不透明 var(--main-bg)，blur 之前一直不可见（死代码）；
+     改半透明底补全毛玻璃意图，与顶栏一致 */
+  background: var(--topbar-bg);
+  -webkit-backdrop-filter: blur(8px); /* Safari ≤17 只认前缀版 */
   backdrop-filter: blur(8px);
 
   .label {
     font-family: var(--dfs-font-mono);
     font-size: 0.8rem;
+  }
+}
+
+/* 两版都不支持时退回不透明底（同 _hud.scss 顶栏兜底） */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  #toc-bar {
+    background: var(--main-bg);
   }
 }
 
