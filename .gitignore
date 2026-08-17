@@ -16,14 +16,17 @@ package-lock.json
 
 # IDE configurations
 .idea
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/tasks.json
+.vscode/
+
+# Local deployment metadata
+.vercel/
 
 # Misc
 _sass/vendors
 assets/js/dist
+.audit-tmp/
+test.html
+test.html.enc
 
 # Claude Code local settings
 .claude/
