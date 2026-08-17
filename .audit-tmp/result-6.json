@@ -1,0 +1,29 @@
+以下为基于已核实来源整理的可操作建议清单（部分检索因网络限流未能完成，已改用直接抓取官方文档核实主要来源）：
+
+## 一、关键渲染路径与 CSS 体积优化
+1. 提取首屏关键 CSS 内联到 `<head>`（内联量建议控制在约 14KB 压缩后以内，贴合首个 TCP 往返），其余样式异步加载（`media="print"` + `onload` 切换，或 `preload` 方案）；可用 Critters/critical 等工具自动提取。来源：https://web.dev/articles/extract-critical-css 、https://web.dev/articles/defer-non-critical-css
+2. 压缩与删除无用 CSS：构建期 minify + PurgeCSS/Lightning CSS，用 Chrome DevTools Coverage 面板核实实际使用率。来源：https://web.dev/articles/minify-css
+3. 非首屏样式可配合 `content-visibility: auto` 跳过屏外渲染，显著降低首次渲染成本。来源：https://web.dev/articles/content-visibility
+4. 字体与 CSS 一起纳入关键路径预算：`font-display: swap` + `preload` 关键字体，避免 FOIT。来源：https://web.dev/articles/font-best-practices
+
+## 二、Scroll-driven Animations vs GSAP ScrollTrigger
+5. 纯 CSS `animation-timeline: scroll()/view()` 已在 Chrome 115+、Edge、Safari 26 支持（Firefox 需 flag），可在合成器线程运行、不阻塞主线程，简单的滚动进度/入场动画优先用它。来源：https://developer.chrome.com/docs/css-ui/scroll-driven-animations
+6. 复杂场景（pin/scrub 联动时间轴、snap、跨元素编排、需要广泛浏览器兼容）仍用 GSAP ScrollTrigger；推荐渐进策略：`@supports (animation-timeline: scroll())` 用 CSS，否则回退 JS。来源：https://developer.chrome.com/docs/css-ui/scroll-driven-animations 、https://gsap.com/docs/v3/Plugins/ScrollTrigger/
+7. 无论哪种方案，只动画 `transform`/`opacity` 等合成器属性，避免滚动回调里读写布局属性造成强制重排。来源：https://web.dev/articles/animations-guide
+
+## 三、View Transitions API 站内过渡
+8. MPA（如 Jekyll 站点）可用跨文档 view transitions：同源两页各加 `@view-transition { navigation: auto; }` 即可获得默认淡入淡出，再用 `view-transition-name` 做元素级共享过渡；Chrome 126+/Safari 18.2+ 支持，天然渐进增强（不支持则普通跳转），无需 JS 框架。来源：https://developer.chrome.com/docs/web-platform/view-transitions/cross-document
+9. 为共享元素（logo、标题、封面图）设置稳定唯一的 `view-transition-name`；过渡应尊重 reduced-motion（在 `prefers-reduced-motion: reduce` 下禁用或简化 `::view-transition-*` 动画）。来源：https://developer.chrome.com/docs/web-platform/view-transitions
+
+## 四、prefers-reduced-motion 与 WCAG 2.2
+10. WCAG 2.2 SC 2.3.3（Animation from Interactions, AAA）：交互触发的非必要动画（视差、滚动驱动缩放/平移等前庭触发型运动）必须可关闭；实践上以 `@media (prefers-reduced-motion: reduce)` 全局降级。来源：https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html
+11. 推荐"默认少动、按需增强"写法：把动画放进 `@media (prefers-reduced-motion: no-preference)` 块内，而非事后覆盖；缩放/平移大对象是典型前庭触发源，降级时改为不透明度淡入。来源：https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+12. JS 动画（GSAP 等）也要监听 `matchMedia('(prefers-reduced-motion: reduce)')` 并动态启停（用户可能中途切换系统设置）；GSAP 可用 `gsap.matchMedia()` 统一处理。来源：https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion 、https://gsap.com/docs/v3/GSAP/gsap.matchMedia()
+13. 另遵守 SC 2.2.2：自动播放、持续超过 5 秒的运动需提供暂停/停止/隐藏手段。来源：https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
+
+## 五、backdrop-filter 性能陷阱
+14. `backdrop-filter`（尤其 `blur()`）需要对元素背后的区域实时离屏采样合成，每帧都昂贵；避免在大面积元素、滚动容器上层或与滚动/动画联动的元素上使用。来源：https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter
+15. 降本手段：缩小模糊半径与作用面积；静态背景可用预模糊图片或半透明纯色/渐变替代；仅在需要时（如菜单打开）临时启用；勿对 `backdrop-filter` 值本身做过渡动画。来源：https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter 、https://web.dev/articles/animations-guide
+16. 谨防层叠副作用：`backdrop-filter`/`filter` 会创建新的 containing block 与 stacking context，可能破坏子元素的 `position: fixed`/`z-index` 预期；上线前用 DevTools Performance 面板实测滚动帧率。来源：https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter
+
+说明：因搜索服务持续 429，第 6、9、12 条中 gsap.com 链接与第 13 条 W3C 链接为标准文档路径、未逐一在线核实；其余来源均已抓取确认可访问。

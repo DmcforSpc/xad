@@ -304,7 +304,6 @@ body.dfs-home {
   transition:
     border-color var(--dfs-t-micro) var(--dfs-ease-out),
     box-shadow var(--dfs-t-micro) var(--dfs-ease-out);
-  transform-style: preserve-3d;
 
   &:hover,
   &:focus-visible {
@@ -337,7 +336,6 @@ body.dfs-home {
     letter-spacing: 0.08em;
     color: var(--dfs-ink-muted);
     margin-bottom: 0.9rem;
-    transform: translateZ(20px);
 
     .dfs-card-cat {
       color: var(--dfs-acc);
@@ -371,7 +369,6 @@ body.dfs-home {
     line-height: 1.45;
     color: var(--dfs-ink-strong);
     margin: 0 0 0.6rem;
-    transform: translateZ(12px);
   }
 
   .dfs-card-desc {
@@ -445,6 +442,21 @@ body.dfs-home {
       letter-spacing: 0.1em;
       /* 反色底上 --dfs-acc 对比度仅 1.8:1（暗）/2.8:1（亮），须用对侧主题 accent */
       color: var(--dfs-acc-invert);
+    }
+  }
+}
+
+/* 3D 深度只服务于桌面倾斜；触屏/PRM 不创建无视觉收益的变换树。 */
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .dfs-card[data-tilt] {
+    transform-style: preserve-3d;
+
+    .dfs-card-meta {
+      transform: translateZ(20px);
+    }
+
+    h3 {
+      transform: translateZ(12px);
     }
   }
 }

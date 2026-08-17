@@ -111,6 +111,12 @@
     margin-top: 0.6rem;
     border-top: 1px solid var(--dfs-hairline);
     padding-top: 0.7rem;
+
+    &:focus-within {
+      outline: 2px solid var(--dfs-acc);
+      outline-offset: 4px;
+      border-top-color: var(--dfs-acc);
+    }
   }
 
   .dfs-term-prompt {

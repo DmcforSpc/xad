@@ -1,0 +1,28 @@
+以下为可操作建议清单（基于 2025–2026 现行实践；来源已验证或为权威文档）：
+
+**一、字体子集化与 unicode-range 分片（中文字体最关键的优化）**
+1. 用 cn-font-split（"中文网字计划"的分包工具，2025 年 7.x Rust 版）把数 MB 的中文字体智能拆分为几十至上百个 woff2 分片，每片配自动生成的 `@font-face` + `unicode-range`；浏览器只下载页面实际用到字符所在的分片，首屏字体流量常从 3–10MB 降到几十至几百 KB。支持 OTF、可变字体、复杂字形，2MB 字体约 50ms 完成分包。来源：https://github.com/KonghaYao/cn-font-split
+2. 前端工程化项目直接用配套的 vite-plugin-font（支持 Vite/Nuxt/Next/Webpack/Rspack），在构建期自动分包并注入 CSS，免手工维护 `@font-face`。来源：https://www.npmjs.com/package/vite-plugin-font
+3. 不想自建时可使用"中文网字计划"提供的已分包好的开源中文字体 CDN（思源黑体/宋体、霞鹜文楷等），或其在线分包工具。来源：https://chinese-font.netlify.app/
+4. 分片原则：按字频（常用 3500 字优先聚合到前几个分片）而非纯 Unicode 区段顺序切，cn-font-split 默认已按字频优化；配合 HTTP/2 多路复用，分片数量多（100+）并不是问题。来源：https://github.com/KonghaYao/cn-font-split
+5. 若只有固定文案（logo、标题），用 pyftsubset/glyphhanger 做"精确子集"只保留出现过的字符，产物可小至几 KB；正文动态内容才用 unicode-range 分片方案。来源：https://web.dev/articles/reduce-webfont-size
+
+**二、font-display 策略**
+6. 中文正文字体用 `font-display: swap`：先用系统字体展示内容，字体到达后替换，保证 FCP/LCP 不被阻塞；配合下面的 size-adjust 回退字体消除 swap 带来的 CLS。来源：https://web.dev/articles/font-display 、https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display
+7. 品牌感强但非关键的装饰性/标题字体可用 `font-display: optional`（加载慢就本次放弃、下次命中缓存再用），是 Google 推荐的"零 CLS"最稳策略。来源：https://web.dev/articles/preload-optional-fonts
+8. 对首屏必用的关键分片加 `<link rel="preload" as="font" type="font/woff2" crossorigin>`（注意分片方案下只 preload 首屏字符所在的少数分片，不要全量 preload）。来源：https://web.dev/articles/codelab-preload-web-fonts
+
+**三、size-adjust 回退字体减少 CLS**
+9. 定义一个"度量调校版"回退字体：`@font-face { font-family: "fallback-adjusted"; src: local("PingFang SC") /* 或 Microsoft YaHei */; size-adjust: …%; ascent-override / descent-override / line-gap-override: …%; }`，让系统字体的行高与占宽尽量贴合目标 webfont，swap 时几乎无版面跳动（CLS ≈ 0）。来源：https://web.dev/articles/css-size-adjust
+10. 用工具自动计算 override 数值：fontaine（https://github.com/unjs/fontaine）或 Capsize（https://seek-oss.github.io/capsize/）；Nuxt/Next 的字体模块（@nuxt/fonts、next/font）已内置自动生成 fallback 度量。来源：https://github.com/unjs/fontaine
+11. `font-family` 栈写成 `"WebFont", "fallback-adjusted", system-ui, sans-serif`，并按平台准备多个 local() 回退（PingFang SC / Microsoft YaHei / Noto Sans CJK）。来源：https://web.dev/articles/css-size-adjust
+
+**四、可变字体与格式**
+12. 需要多字重（如 400/500/700）时优先用中文可变字体（思源黑体 VF 等）：一套文件覆盖全部字重，总体积远小于多份静态字重之和；cn-font-split 支持可变字体分包并自动识别字重轴。来源：https://github.com/KonghaYao/cn-font-split 、https://web.dev/articles/variable-fonts
+13. 只发布 woff2（Brotli 内压缩，比 woff/ttf 小 30%+），现代浏览器已全面支持，无需再带 woff/ttf 兜底。来源：https://web.dev/articles/reduce-webfont-size
+
+**五、交付与缓存**
+14. 字体走同域或已建连的 CDN，配 `Cache-Control: public, max-age=31536000, immutable`（文件名带 hash）；跨域时 `@font-face` 的 src 请求必须带 `crossorigin`。来源：https://web.dev/articles/font-best-practices
+15. 上线后用 Lighthouse / PageSpeed Insights 验证 CLS 与 "Ensure text remains visible during webfont load" 审计项。来源：https://developer.chrome.com/docs/lighthouse/performance/font-display
+
+说明：本次会话 WebSearch 持续限流（429），cn-font-split README 与 web.dev size-adjust 文章已通过直接抓取核实（cn-font-split 7.0 Rust 版、2025-01 更新，功能描述与上文一致）；其余为权威文档 URL，建议使用前顺手复核。

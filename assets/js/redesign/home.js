@@ -17,6 +17,7 @@
     finePointer: false
   };
   var lenis = null;
+  var lenisTicker = null;
   var net = null;
 
   /* ================ canvas 粒子节点拓扑 ================ */
@@ -37,11 +38,16 @@
     var dpr = 1;
     var px = -9999;
     var py = -9999;
+    var lastPointerT = 0;
     var slowFrames = 0;
     var lastT = 0;
+    var destroyed = false;
+    var visible = true;
+    var host = canvas.parentElement;
     var accent = { r: 155, g: 184, b: 225 };
 
     function readAccent() {
+      if (destroyed) return;
       /* 读 canvas 自身计算样式：拿到 hero 局部覆盖的冰蓝，而非全局强调色 */
       var v = getComputedStyle(canvas).getPropertyValue('--dfs-acc').trim();
       var m = /^#?([0-9a-f]{6})$/i.exec(v);
@@ -55,12 +61,17 @@
     }
 
     function resize() {
+      if (destroyed) return;
       dpr = Math.min(window.devicePixelRatio || 1, dprCap);
       w = canvas.clientWidth;
       h = canvas.clientHeight;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (particles.length) {
+        seed();
+        start();
+      }
     }
 
     function seed() {
@@ -77,7 +88,7 @@
 
     function frame(t) {
       raf = null;
-      if (!running) return;
+      if (destroyed || !running) return;
 
       /* 帧预算自限：连续 3 帧 > 34ms → 粒子数 ×0.75（地板 16） */
       if (lastT) {
@@ -92,8 +103,15 @@
       }
       lastT = t;
 
+      if (lastPointerT && t - lastPointerT > 700) {
+        px = -9999;
+        py = -9999;
+        lastPointerT = 0;
+      }
+
       ctx.clearRect(0, 0, w, h);
       var n = particles.length;
+      var energy = 0;
       var i;
       var j;
 
@@ -113,6 +131,7 @@
 
         p.vx *= 0.985;
         p.vy *= 0.985;
+        energy += p.vx * p.vx + p.vy * p.vy;
         p.x += p.vx;
         p.y += p.vy;
         if (p.x < -10) p.x = w + 10;
@@ -156,11 +175,16 @@
         }
       }
 
+      /* 无指针输入且粒子已近乎静止时保留最后一帧，避免静态画面持续耗电。 */
+      if (px < -9000 && energy / Math.max(n, 1) < 0.0004) {
+        running = false;
+        return;
+      }
       raf = requestAnimationFrame(frame);
     }
 
     function start() {
-      if (running) return;
+      if (destroyed || running) return;
       running = true;
       lastT = 0;
       if (!raf) raf = requestAnimationFrame(frame);
@@ -175,33 +199,45 @@
     }
 
     function onPointer(e) {
+      if (destroyed) return;
       var r = canvas.getBoundingClientRect();
       px = e.clientX - r.left;
       py = e.clientY - r.top;
+      lastPointerT = performance.now();
+      start();
     }
 
     function onLeave() {
+      if (destroyed) return;
       px = -9999;
       py = -9999;
+      lastPointerT = 0;
     }
 
     readAccent();
     resize();
     seed();
 
+    function onVisibilityChange() {
+      if (destroyed) return;
+      if (document.hidden) stop();
+      else if (visible) start();
+    }
+
+    function onThemeMessage(e) {
+      if (!destroyed && e.data && e.data.id === 'theme-mode') readAccent();
+    }
+
     window.addEventListener('resize', resize, { passive: true });
-    if (fine) {
-      canvas.parentElement.addEventListener('pointermove', onPointer, { passive: true });
-      canvas.parentElement.addEventListener('pointerleave', onLeave, { passive: true });
+    if (fine && host) {
+      host.addEventListener('pointermove', onPointer, { passive: true });
+      host.addEventListener('pointerleave', onLeave, { passive: true });
     }
 
     /* 切后台 / 滚出视口即停帧 */
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stop();
-      else if (visible) start();
-    });
-    var visible = true;
+    document.addEventListener('visibilitychange', onVisibilityChange);
     var vio = new IntersectionObserver(function (entries) {
+      if (destroyed) return;
       visible = entries[0].isIntersecting;
       if (visible && !document.hidden) start();
       else stop();
@@ -209,16 +245,23 @@
     vio.observe(canvas);
 
     /* 暗亮切换（Chirpy postMessage 契约）时重取强调色 */
-    window.addEventListener('message', function (e) {
-      if (e.data && e.data.id === 'theme-mode') readAccent();
-    });
+    window.addEventListener('message', onThemeMessage);
 
     return {
       start: start,
       destroy: function () {
+        if (destroyed) return;
+        destroyed = true;
         stop();
         vio.disconnect();
         window.removeEventListener('resize', resize);
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+        window.removeEventListener('message', onThemeMessage);
+        if (fine && host) {
+          host.removeEventListener('pointermove', onPointer);
+          host.removeEventListener('pointerleave', onLeave);
+        }
+        particles = [];
         document.documentElement.classList.remove('dfs-canvas-on');
       }
     };
@@ -397,15 +440,52 @@
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a[href^="#"]');
       if (!a || !lenis) return;
-      var target = document.getElementById(a.getAttribute('href').slice(1));
+      var id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      var target = document.getElementById(id);
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target, { offset: 0 });
+      lenis.scrollTo(target, {
+        offset: 0,
+        onStart: startLenisTicker,
+        onComplete: function () {
+          var temporaryTabindex = !target.hasAttribute('tabindex');
+          if (temporaryTabindex) target.setAttribute('tabindex', '-1');
+          try {
+            target.focus({ preventScroll: true });
+          } catch (err) {
+            target.focus();
+          }
+          if (temporaryTabindex) {
+            target.addEventListener(
+              'blur',
+              function () {
+                target.removeAttribute('tabindex');
+              },
+              { once: true }
+            );
+          }
+        }
+      });
       history.pushState(null, '', a.getAttribute('href'));
     });
   }
 
   /* ================ Lenis + ScrollTrigger + hero pin ================ */
+  var lenisTickerActive = false;
+
+  function stopLenisTicker() {
+    if (!lenisTickerActive || !lenisTicker || !window.gsap) return;
+    window.gsap.ticker.remove(lenisTicker);
+    lenisTickerActive = false;
+  }
+
+  function startLenisTicker() {
+    if (lenisTickerActive || !lenisTicker || !window.gsap) return;
+    lenisTickerActive = true;
+    window.gsap.ticker.add(lenisTicker);
+  }
+
   function setupScroll() {
     if (!window.gsap || !window.ScrollTrigger) return;
     window.gsap.registerPlugin(window.ScrollTrigger);
@@ -447,9 +527,15 @@
       lenis = new window.Lenis({ autoRaf: false });
       document.documentElement.classList.add('lenis');
       lenis.on('scroll', window.ScrollTrigger.update);
-      window.gsap.ticker.add(function (t) {
+      lenisTicker = function (t) {
+        if (!lenis) {
+          stopLenisTicker();
+          return;
+        }
         lenis.raf(t * 1000);
-      });
+        if (lenis.isScrolling !== 'smooth') stopLenisTicker();
+      };
+      lenis.on('virtual-scroll', startLenisTicker);
       window.gsap.ticker.lagSmoothing(0);
     }
 
@@ -469,8 +555,10 @@
       var active = !wrapper.classList.contains('d-none');
       document.documentElement.classList.toggle('dfs-search-active', active);
       if (lenis) {
-        if (active) lenis.stop();
-        else {
+        if (active) {
+          lenis.stop();
+          stopLenisTicker();
+        } else {
           lenis.start();
           if (window.ScrollTrigger) window.ScrollTrigger.refresh();
         }
@@ -485,13 +573,15 @@
       net.destroy();
       net = null;
     }
+    stopLenisTicker();
+    lenisTicker = null;
     if (lenis) {
       lenis.destroy();
       lenis = null;
       document.documentElement.classList.remove('lenis');
     }
     if (window.ScrollTrigger) {
-      window.ScrollTrigger.killAll();
+      window.ScrollTrigger.disable(false, true);
     }
     teardownMagnetic();
     var typer = document.getElementById('dfs-typer');
@@ -546,6 +636,7 @@
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
           rIC(function () {
+            if (!DFS.motionOK()) return;
             net = createNet(canvas);
             if (net) {
               document.documentElement.classList.add('dfs-canvas-on');

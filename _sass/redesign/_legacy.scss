@@ -133,7 +133,8 @@ details.details-block[open] > summary {
     box-shadow var(--dfs-t-micro, 0.2s) ease;
 }
 
-.friend-card-item:hover {
+.friend-card-item:hover,
+.friend-card-item:focus-within {
   border-color: var(--dfs-acc-glow, var(--main-border-color));
   box-shadow: 0 0 24px var(--dfs-acc-ghost, rgba(0, 0, 0, 0.15));
 }
@@ -142,6 +143,12 @@ details.details-block[open] > summary {
   display: block;
   text-decoration: none;
   color: var(--text-color);
+}
+
+.friend-card-link:focus-visible {
+  outline: 2px solid var(--dfs-acc, currentColor);
+  outline-offset: -3px;
+  border-radius: inherit;
 }
 
 .friend-card-img-wrapper {
@@ -157,8 +164,21 @@ details.details-block[open] > summary {
   transition: transform 0.3s ease;
 }
 
-.friend-card-item:hover .friend-card-avatar {
+.friend-card-item:hover .friend-card-avatar,
+.friend-card-item:focus-within .friend-card-avatar {
   transform: scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details.details-block > summary::after,
+  .friend-card-avatar {
+    transition: none;
+  }
+
+  .friend-card-item:hover .friend-card-avatar,
+  .friend-card-item:focus-within .friend-card-avatar {
+    transform: none;
+  }
 }
 
 .friend-card-info {

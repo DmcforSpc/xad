@@ -130,6 +130,14 @@
   }
 }
 
+@media (pointer: coarse), (max-width: 849px) {
+  #topbar-wrapper {
+    background: var(--dfs-bg-0);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 #breadcrumb {
   font-family: var(--dfs-font-mono);
   font-size: 0.78rem;

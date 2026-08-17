@@ -1,8 +1,12 @@
 <!-- 基于 Chirpy 7.3.1 的官方空 hook（_includes/metadata-hook.html）。
-  改动：注入 html.js 类（动效初态的双重门之一）+ 展示字体 preload。
+  改动：注入 html.js 类（动效初态的双重门之一）+ 2 秒 fail-open + 展示字体 preload。
   还原：清空本文件即可。 -->
 <script>
   document.documentElement.classList.add('js');
+  window.__dfsRevealFallback = setTimeout(function () {
+    document.documentElement.classList.remove('js');
+    window.__dfsRevealFallback = null;
+  }, 2000);
 </script>
 <link
   rel="preload"

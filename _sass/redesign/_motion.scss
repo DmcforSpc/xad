@@ -41,11 +41,23 @@
       transform: none;
       transition-delay: 0ms;
     }
+
+    html.js [data-reveal='mask'] {
+      clip-path: none;
+    }
   }
 }
 
 /* PRM 下叫停一切装饰动画（shimmer / 光标闪烁 / 滚动虚线 / legacy 旋转与彩蛋） */
 @media (prefers-reduced-motion: reduce) {
+  .dfs-skip-link {
+    transition: none;
+  }
+
+  .dfs-card::after {
+    display: none;
+  }
+
   .dfs-btn::before,
   .dfs-scroll-hint .dfs-scroll-line,
   .dfs-caret,

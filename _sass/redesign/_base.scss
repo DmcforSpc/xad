@@ -74,6 +74,27 @@ samp {
   border: 0;
 }
 
+/* 键盘用户的首个焦点入口；离开焦点后不占页面布局。 */
+.dfs-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 2000;
+  padding: 0.65rem 0.9rem;
+  border: 2px solid var(--dfs-acc);
+  border-radius: var(--dfs-r-sm);
+  background: var(--dfs-bg-1);
+  color: var(--dfs-ink-strong);
+  font-family: var(--dfs-font-mono);
+  font-weight: 700;
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform var(--dfs-t-micro) var(--dfs-ease-out);
+
+  &:focus-visible {
+    transform: translateY(0);
+  }
+}
+
 /* ---- 氛围背景（_includes/animated-background.html, 全站, 纯静态纹理） ---- */
 #dfs-ambient {
   position: fixed;
